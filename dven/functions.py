@@ -42,3 +42,4 @@ def get_data_dict(time_series_path):
     tile_dict['projection'] = time_series.GetProjection()
     tile_dict["raster_stack"] = time_series.ReadAsArray()
     return(tile_dict)
+

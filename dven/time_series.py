@@ -284,6 +284,9 @@ class Timeseries:
 
     
     def get_bfast_parameters(self):
+        '''
+        Prints the set parameters in set_bfast_parameters()
+        '''
         print("Monitoring starts at: ", self.start_monitor)
         print("Monitoring ends at: ", self.end_monitor)
         print("Dataset history starts at: ", self.start_hist)
@@ -297,7 +300,9 @@ class Timeseries:
         
     
     def check_arrays(self, min_perc_lacking_data = 20):
-        
+        '''
+        Checks the means and breaks arrays for amount of breaks, and means values. 
+        '''
         minus1count = np.count_nonzero(self.breaks_array == -1) # no break found
         minus2count = np.count_nonzero(self.breaks_array == -2) # not enough data for output
         total_count = self.nrows*self.ncols
@@ -317,7 +322,11 @@ class Timeseries:
             return(warnings.warn("Warning: More than {} percent of the pixels in this tile lack sufficient data, resulting in NaNs. Consider selecting a longer monitoring period or a larger area.".format(min_perc_lacking_data)))
     
     def log_output_to_txt(self):
-
+        '''
+        Logs all class parameters to logs/[tilename].txt file
+        '''
+        
+        
         self.date = str(datetime.now())
         self.device = pyopencl.get_platforms()[0].get_devices()
         
@@ -342,6 +351,10 @@ class Timeseries:
                     f.write("\n")
     
     def log_breaks_means_arrays(self):
+        '''
+        Saves breaks and means output arrays locally in output_arrays/[tile_name] + _means.npy|breaks.npy
+        '''
+        
         
         arrays_directory = "output_arrays"
         if not os.path.exists("output_arrays"):
@@ -364,7 +377,9 @@ class Timeseries:
             print("No arrays are currently loaded")
     
     def load_breaks_means_arrays_from_file(self):
-        
+        '''
+        Loads the locally saved means and breaks arrays from log_breaks_means_arrays() method
+        '''
         
         arrays_directory = "output_arrays"
         load_dir = self.dir

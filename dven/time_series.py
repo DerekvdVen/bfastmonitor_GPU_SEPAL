@@ -1,5 +1,7 @@
 from osgeo import gdal
 
+import os
+
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -19,6 +21,8 @@ from tqdm import tqdm
 
 import warnings
 warnings.filterwarnings('always')
+
+from functions import _find_index_date
 
 class Timeseries:
     '''
@@ -91,8 +95,9 @@ class Timeseries:
         '''
         
         
-        data, dates = crop_data_dates(block, self.dates, self.start_hist, self.end_monitor)
-
+        #data, dates = crop_data_dates(block, self.dates, self.start_hist, self.end_monitor)
+        data, self.cropped_dates = crop_data_dates(block, self.dates, self.start_hist, self.end_monitor)
+        print("cropped")
         # only apply on a small subset
         #data = data[:,:80,:80]
         
@@ -101,7 +106,7 @@ class Timeseries:
         data[where_are_NaNs] = -32768
 
         # fit model
-        self.model.fit(data, dates, nan_value = -32768) 
+        self.model.fit(data, self.cropped_dates, nan_value = -32768) 
         
         # save breaks and mean magnitudes
         breaks = self.model.breaks # index of date that has a break in dates
@@ -172,7 +177,7 @@ class Timeseries:
                     pbar2.update(1)
                     
                     if first_horstack==True:
-                        data = self.time_series.ReadAsArray(j, i, cols, rows).astype(np.int16)
+                        data = self.time_series.ReadAsArray(j, i, cols, rows).astype("int16")
                         breaks,means = self.run_bfast(data)
                         breaks_array = breaks
                         means_array = means
@@ -180,7 +185,7 @@ class Timeseries:
 
                     # after that add to array
                     else:                    
-                        data = self.time_series.ReadAsArray(j, i, cols, rows).astype(np.int16)
+                        data = self.time_series.ReadAsArray(j, i, cols, rows).astype("int16")
                         breaks,means = self.run_bfast(data)
                         breaks_array = np.concatenate((breaks_array,breaks),axis = 1)
                         means_array = np.concatenate((means_array,means),axis = 1)
@@ -397,6 +402,50 @@ class Timeseries:
         self.means_array = np.load(load_means_dir)
         self.breaks_array = np.load(load_breaks_dir)
         
+        
+    def crop_dates(self, dates):
+        """ Crops the input data and the associated
+        dates w.r.t. the provided start and end 
+        datetime object.
+
+        Parameters
+        ----------
+        data: ndarray of shape (N, W, H)
+            Here, N is the number of time 
+            series points per pixel and W 
+            and H are the width and the height 
+            of the image, respectively.
+        dates : list of datetime objects
+            Specifies the dates of the elements
+            in data indexed by the first axis
+            n_chunks : int or None, default None
+        start : datetime
+            The start datetime object
+        end : datetime
+            The end datetime object
+
+        Returns
+        -------
+        Returns: data, dates
+            The cropped data array and the 
+            cropped list. Only those images 
+            and dates that are with the start/end
+            period are contained in the returned
+            objects.
+        """
+        start = self.start_hist
+        end = self.end_monitor
+        
+        start_idx = _find_index_date(dates, start)
+        end_idx = _find_index_date(dates, end)
+
+        dates_cropped = list(np.array(dates)[start_idx:end_idx])
+        self.cropped_dates = dates_cropped
+
+
+ 
+        
+       
     # Don't work anymore, fix later
     def plot_hist(self):
         histlist = []

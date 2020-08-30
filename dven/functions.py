@@ -110,7 +110,7 @@ def merge_tiles(tile_list):
     except:
         start_index = 1
 
-    save_dir = timeseries_directory.replace("/","-")[start_index:]
+    save_dir = data_list[0].dir.replace("/","-")[start_index:]
 
 
     save_means_dir = arrays_directory + "/" + save_dir + "_" + "_all_means.npy"

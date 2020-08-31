@@ -24,6 +24,8 @@ warnings.filterwarnings('always')
 
 from functions import _find_index_date
 
+import json
+
 class Timeseries:
     '''
     The timeseries class is a wrapper for using SEPAL timeseries data with bfast. 
@@ -68,6 +70,13 @@ class Timeseries:
         
         # Set a time dictionary for testing runtimes
         self.time_dict = {}
+        
+        self.date = str(datetime.now())
+        try:
+            self.device = pyopencl.get_platforms()[0].get_devices()
+        except:
+            self.device = "cpu"
+            
         
         # self.raster_stack_orig = time_series.ReadAsArray()
         # This takes really long and will likely cause memory issues when running on large countries, so don't use it
@@ -326,60 +335,113 @@ class Timeseries:
         if perc_lacking_data > min_perc_lacking_data:
             return(warnings.warn("Warning: More than {} percent of the pixels in this tile lack sufficient data, resulting in NaNs. Consider selecting a longer monitoring period or a larger area.".format(min_perc_lacking_data)))
     
-    def log_output_to_txt(self):
-        '''
-        Logs all class parameters to logs/[tilename].txt file
-        '''
+    
+    def log_all_output(self,output_dir_name = 'my_data'):
         
+        save_location = "stored_time_series"
+        if not os.path.exists(save_location):
+            os.makedirs(save_location)
+        if not os.path.exists(save_location + '/' + output_dir_name):
+            os.makedirs(save_location + '/' + output_dir_name)
         
-        self.date = str(datetime.now())
-        self.device = pyopencl.get_platforms()[0].get_devices()
+        # Set save_dir name
+        tile_name = self.name.split('/')[-2]
+        if not 'tile' in tile_name:
+            tile_name = 'single_tile'
+        
+        # metadata
+        save_name = save_location + "/" + output_dir_name + "/" + tile_name  + "_meta_data.txt"
         
         attributes = inspect.getmembers(self, lambda a:not(inspect.isroutine(a)))
-        
-        logs_directory = "logs"
-        if not os.path.exists("logs"):
-            os.makedirs(logs_directory)
-        
-        save_dir = self.dir
-        try:
-            start_index = save_dir.find("Time_series")
-        except:
-            start_index = 1
-        save_dir = self.dir.replace("/","-")[start_index:] + datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + ".txt"
-        
-        
-        with open(str(logs_directory + "/" + save_dir), "w") as f:
+        with open(save_name, "w") as f:
             for a in attributes:
                 if not(a[0].startswith('__') and a[0].endswith('__')):
                     f.write(str(a))
                     f.write("\n")
-    
-    def log_breaks_means_arrays(self):
-        '''
-        Saves breaks and means output arrays locally in output_arrays/[tile_name] + _means.npy|breaks.npy
-        '''
         
-        
-        arrays_directory = "output_arrays"
-        if not os.path.exists("output_arrays"):
-            os.makedirs(arrays_directory)
-        
-        save_dir = self.dir
+        # arrays
+        save_means_name = save_location + "/" + output_dir_name + '/' + tile_name + "_means.npy"
+        save_breaks_name = save_location + "/" + output_dir_name + '/' + tile_name + "_breaks.npy"
         try:
-            start_index = save_dir.find("Time_series")
-        except:
-            start_index = 1
-        
-        save_means_dir = arrays_directory + '/' + self.dir.replace("/","-")[start_index:-1] + "_means.npy"
-        save_breaks_dir = arrays_directory + '/' +self.dir.replace("/","-")[start_index:-1] + "_breaks.npy"
-        print(save_means_dir)
-        print(save_breaks_dir)
-        try:
-            np.save(save_means_dir, self.means_array)
-            np.save(save_breaks_dir,self.breaks_array)
+            np.save(save_means_name, self.means_array)
+            np.save(save_breaks_name, self.breaks_array)
         except:
             print("No arrays are currently loaded")
+    
+    def load_breaks_means_arrays_from_file(self, output_dir_name = 'my_data'):
+        '''
+        Loads the locally saved means and breaks arrays from log_breaks_means_arrays() method
+        '''
+        
+        save_location = "stored_time_series"
+        
+        tile_name = self.name.split('/')[-2]
+        if not 'tile' in tile_name:
+            tile_name = 'single_tile'
+        
+        save_means_name = save_location + "/" + output_dir_name + '/' + tile_name + "_means.npy"
+        save_breaks_name = save_location + "/" + output_dir_name + '/' + tile_name + "_breaks.npy"
+        
+        print(load_means_dir)
+        print(load_breaks_dir)
+        
+        self.means_array = np.load(load_means_dir)
+        self.breaks_array = np.load(load_breaks_dir)
+        
+#     def log_output_to_txt(self):
+#         '''
+#         Logs all class parameters to logs/[tilename].txt file
+#         '''
+        
+        
+#         self.date = str(datetime.now())
+#         self.device = pyopencl.get_platforms()[0].get_devices()
+        
+#         attributes = inspect.getmembers(self, lambda a:not(inspect.isroutine(a)))
+        
+#         logs_directory = "logs"
+#         if not os.path.exists("logs"):
+#             os.makedirs(logs_directory)
+        
+#         save_dir = self.dir
+#         try:
+#             start_index = save_dir.find("Time_series")
+#         except:
+#             start_index = 1
+#         save_dir = self.dir.replace("/","-")[start_index:] + datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + ".txt"
+        
+        
+#         with open(str(logs_directory + "/" + save_dir), "w") as f:
+#             for a in attributes:
+#                 if not(a[0].startswith('__') and a[0].endswith('__')):
+#                     f.write(str(a))
+#                     f.write("\n")
+    
+#     def log_breaks_means_arrays(self):
+#         '''
+#         Saves breaks and means output arrays locally in output_arrays/[tile_name] + _means.npy|breaks.npy
+#         '''
+        
+        
+#         arrays_directory = "output_arrays"
+#         if not os.path.exists("output_arrays"):
+#             os.makedirs(arrays_directory)
+        
+#         save_dir = self.dir
+#         try:
+#             start_index = save_dir.find("Time_series")
+#         except:
+#             start_index = 1
+        
+#         save_means_dir = arrays_directory + '/' + self.dir.replace("/","-")[start_index:-1] + "_means.npy"
+#         save_breaks_dir = arrays_directory + '/' +self.dir.replace("/","-")[start_index:-1] + "_breaks.npy"
+#         print(save_means_dir)
+#         print(save_breaks_dir)
+#         try:
+#             np.save(save_means_dir, self.means_array)
+#             np.save(save_breaks_dir,self.breaks_array)
+#         except:
+#             print("No arrays are currently loaded")
     
     def load_breaks_means_arrays_from_file(self):
         '''

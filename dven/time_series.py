@@ -29,8 +29,8 @@ import json
 class Timeseries:
     '''
     The timeseries class is a wrapper for using SEPAL timeseries data with bfast. 
-    It wraps together the data tiles with associated dates files, and their metadata. 
-    It also allows for saving and loading the output rasters. 
+    It wraps together a data tile with associated dates file and metadata. 
+    It also allows for saving and loading the output rasters in a specified directory. 
     '''
     
     def __init__(self, time_series_path, dates_path):
@@ -66,7 +66,7 @@ class Timeseries:
         
         # Get gdal's recommended block size
         band = self.time_series.GetRasterBand(1)
-        self.block_size = band.GetBlockSize()
+        self.gdal_recommended_block_size = band.GetBlockSize()
         
         # Set a time dictionary for testing runtimes
         self.time_dict = {}
@@ -103,10 +103,8 @@ class Timeseries:
         block: numpy array, 3D numpy array to run bfast upon
         '''
         
-        
-        #data, dates = crop_data_dates(block, self.dates, self.start_hist, self.end_monitor)
         data, self.cropped_dates = crop_data_dates(block, self.dates, self.start_hist, self.end_monitor)
-        print("cropped")
+
         # only apply on a small subset
         #data = data[:,:80,:80]
         
@@ -147,7 +145,7 @@ class Timeseries:
         #x_block_size = self.block_size[0]
         #y_block_size = self.block_size[1]
         print("rastersize: ",self.ncols,self.nrows)
-        print("The natural block size is the block size that is most efficient for accessing the format, gdal found blocksize: ",self.block_size)
+        print("The natural block size is the block size that is most efficient for accessing the format, gdal found blocksize: ",self.gdal_recommended_block_size)
         print("set blocksize explicitly: ",x_block_size,", " ,y_block_size)
         print("bytes required: ", str(8 * self.ncols * self.nrows * self.nbands))
         print("start monitor: ", self.start_monitor)
@@ -186,7 +184,9 @@ class Timeseries:
                     pbar2.update(1)
                     
                     if first_horstack==True:
-                        data = self.time_series.ReadAsArray(j, i, cols, rows).astype("int16")
+                        data = self.time_series.ReadAsArray(j, i, cols, rows)#.astype("int16")
+                        #data = data*10000
+                        data=data.astype("int16")
                         breaks,means = self.run_bfast(data)
                         breaks_array = breaks
                         means_array = means
@@ -194,7 +194,9 @@ class Timeseries:
 
                     # after that add to array
                     else:                    
-                        data = self.time_series.ReadAsArray(j, i, cols, rows).astype("int16")
+                        data = self.time_series.ReadAsArray(j, i, cols, rows)#.astype("int16")
+                        #data = data*10000
+                        data=data.astype("int16")
                         breaks,means = self.run_bfast(data)
                         breaks_array = np.concatenate((breaks_array,breaks),axis = 1)
                         means_array = np.concatenate((means_array,means),axis = 1)
@@ -379,14 +381,74 @@ class Timeseries:
         if not 'tile' in tile_name:
             tile_name = 'single_tile'
         
-        save_means_name = save_location + "/" + output_dir_name + '/' + tile_name + "_means.npy"
-        save_breaks_name = save_location + "/" + output_dir_name + '/' + tile_name + "_breaks.npy"
+        load_means_name = save_location + "/" + output_dir_name + '/' + tile_name + "_means.npy"
+        load_breaks_name = save_location + "/" + output_dir_name + '/' + tile_name + "_breaks.npy"
         
-        print(load_means_dir)
-        print(load_breaks_dir)
+        print(load_means_name)
+        print(load_breaks_name)
         
-        self.means_array = np.load(load_means_dir)
-        self.breaks_array = np.load(load_breaks_dir)
+        self.means_array = np.load(load_means_name)
+        self.breaks_array = np.load(load_breaks_name)
+    
+
+        
+    def crop_dates(self, dates):
+        """ Crops the input data and the associated
+        dates w.r.t. the provided start and end 
+        datetime object.
+
+        Parameters
+        ----------
+        data: ndarray of shape (N, W, H)
+            Here, N is the number of time 
+            series points per pixel and W 
+            and H are the width and the height 
+            of the image, respectively.
+        dates : list of datetime objects
+            Specifies the dates of the elements
+            in data indexed by the first axis
+            n_chunks : int or None, default None
+        start : datetime
+            The start datetime object
+        end : datetime
+            The end datetime object
+
+        Returns
+        -------
+        Returns: data, dates
+            The cropped data array and the 
+            cropped list. Only those images 
+            and dates that are with the start/end
+            period are contained in the returned
+            objects.
+        """
+        start = self.start_hist
+        end = self.end_monitor
+        
+        start_idx = _find_index_date(dates, start)
+        end_idx = _find_index_date(dates, end)
+
+        dates_cropped = list(np.array(dates)[start_idx:end_idx])
+        self.cropped_dates = dates_cropped
+
+    #### depcrecated ####
+#     def save_monitor_dates(self,output_dir_name = 'my_data'):
+        
+#         start_hist_str = self.start_hist.strftime("%m/%d/%Y%H:%M:%S")
+#         end_monitor_str = self.end_monitor.strftime("%m/%d/%Y%H:%M:%S")
+        
+#         timestamp = {"start_hist": self.start_hist.strftime("%m/%d/%Y"), "end_monitor": self.end_monitor.strftime("%m/%d/%Y")}
+#         with open("stored_time_series/" + output_dir_name + "/timestamp.json","w") as f:
+#             json.dump(timestamp, f)
+    
+#     def load_monitor_dates(self,output_dir_name = 'my_data'):
+        
+#         with open("stored_time_series/" + output_dir_name + "/timestamp.json","r") as f:
+#             timestamp = json.load(f)
+#         print(timestamp["start_hist"])
+#         print(timestamp["end_monitor"])
+#         self.start_hist = datetime.strptime(timestamp["start_hist"], "%d/%m/%Y")
+#         self.end_monitor = datetime.strptime(timestamp["end_monitor"], "%d/%m/%Y")
         
 #     def log_output_to_txt(self):
 #         '''
@@ -443,71 +505,27 @@ class Timeseries:
 #         except:
 #             print("No arrays are currently loaded")
     
-    def load_breaks_means_arrays_from_file(self):
-        '''
-        Loads the locally saved means and breaks arrays from log_breaks_means_arrays() method
-        '''
+#     def load_breaks_means_arrays_from_file(self):
+#         '''
+#         Loads the locally saved means and breaks arrays from log_breaks_means_arrays() method
+#         '''
         
-        arrays_directory = "output_arrays"
-        load_dir = self.dir
-        try:
-            start_index = load_dir.find("Time_series")
-        except:
-            start_index = 1
+#         arrays_directory = "output_arrays"
+#         load_dir = self.dir
+#         try:
+#             start_index = load_dir.find("Time_series")
+#         except:
+#             start_index = 1
         
-        load_means_dir = arrays_directory + '/' + self.dir.replace("/","-")[start_index:-1] + "_means.npy"
-        load_breaks_dir = arrays_directory + '/' +self.dir.replace("/","-")[start_index:-1] + "_breaks.npy"
+#         load_means_dir = arrays_directory + '/' + self.dir.replace("/","-")[start_index:-1] + "_means.npy"
+#         load_breaks_dir = arrays_directory + '/' +self.dir.replace("/","-")[start_index:-1] + "_breaks.npy"
         
-        print(load_means_dir)
-        print(load_breaks_dir)
+#         print(load_means_dir)
+#         print(load_breaks_dir)
         
-        self.means_array = np.load(load_means_dir)
-        self.breaks_array = np.load(load_breaks_dir)
+#         self.means_array = np.load(load_means_dir)
+#         self.breaks_array = np.load(load_breaks_dir)
         
-        
-    def crop_dates(self, dates):
-        """ Crops the input data and the associated
-        dates w.r.t. the provided start and end 
-        datetime object.
-
-        Parameters
-        ----------
-        data: ndarray of shape (N, W, H)
-            Here, N is the number of time 
-            series points per pixel and W 
-            and H are the width and the height 
-            of the image, respectively.
-        dates : list of datetime objects
-            Specifies the dates of the elements
-            in data indexed by the first axis
-            n_chunks : int or None, default None
-        start : datetime
-            The start datetime object
-        end : datetime
-            The end datetime object
-
-        Returns
-        -------
-        Returns: data, dates
-            The cropped data array and the 
-            cropped list. Only those images 
-            and dates that are with the start/end
-            period are contained in the returned
-            objects.
-        """
-        start = self.start_hist
-        end = self.end_monitor
-        
-        start_idx = _find_index_date(dates, start)
-        end_idx = _find_index_date(dates, end)
-
-        dates_cropped = list(np.array(dates)[start_idx:end_idx])
-        self.cropped_dates = dates_cropped
-
-
- 
-        
-       
     # Don't work anymore, fix later
     def plot_hist(self):
         histlist = []

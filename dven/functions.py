@@ -9,9 +9,9 @@ def test():
 def set_output_dir(chooser):
     if not chooser.result:
         print("Defaulting to output directory name \"output\" ")
-        output_directory = "output"
-        if not os.path.exists("output"):
-            os.makedirs(output_directory)
+        save_location = "stored_time_series/output"
+        if not os.path.exists(save_location):
+            os.makedirs(save_location)
     else:
         print("Output directory name:", chooser.result)
         if not os.path.exists(chooser.result):
@@ -52,7 +52,7 @@ def _find_index_date(dates, t):
     
     return len(dates)
                 
-def merge_tiles(tile_list):
+def merge_tiles(tile_list, output_dir_name = 'my_data'):
     x_locs = []
     y_locs = []
     x_tiles = []
@@ -75,25 +75,20 @@ def merge_tiles(tile_list):
     y_tiles.append(x_tiles)
             
     firstx=True
-    print("y_tiles: ",y_tiles)
 
     for tile_list in y_tiles:
-        print("x_tiles ",tile_list)
         firsty = True
 
         for tile in tile_list:
             if firsty == True:
-                print(tile.dir, " is now being made the first")
                 means_array = tile.means_array
                 breaks_array = tile.breaks_array
                 firsty = False
             else:
-                print(tile.dir, " is being added to the first")
                 means_array = np.concatenate((means_array, tile.means_array), axis = 1)
                 breaks_array = np.concatenate((breaks_array, tile.breaks_array), axis = 1)
 
         if firstx==True:
-            print()
             big_means_array = means_array
             big_breaks_array = breaks_array
             firstx=False
@@ -101,20 +96,10 @@ def merge_tiles(tile_list):
             big_means_array = np.concatenate((big_means_array, means_array),axis = 0)
             big_breaks_array = np.concatenate((big_breaks_array, breaks_array),axis = 0)
     
-    arrays_directory = "output_arrays"
-    if not os.path.exists("output_arrays"):
-        os.makedirs(arrays_directory)
-
-    try:
-        start_index = save_dir.find("Time_series")
-    except:
-        start_index = 1
-
-    save_dir = data_list[0].dir.replace("/","-")[start_index:]
-
-
-    save_means_dir = arrays_directory + "/" + save_dir + "_" + "_all_means.npy"
-    save_breaks_dir = arrays_directory + "/" + save_dir + "_" + "_all_breaks.npy"
+    save_location = "stored_time_series"
+    
+    save_means_dir = save_location + "/" + output_dir_name + '/' + "all_means.npy"
+    save_breaks_dir = save_location + "/" + output_dir_name + '/' + "all_breaks.npy"
     print(save_means_dir)
     print(save_breaks_dir)
     np.save(save_means_dir, big_means_array)

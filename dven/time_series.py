@@ -22,7 +22,7 @@ from tqdm import tqdm
 import warnings
 warnings.filterwarnings('always')
 
-from functions import _find_index_date
+#from functions import _find_index_date
 
 import json
 
@@ -88,7 +88,7 @@ class Timeseries:
             self.dates = [datetime.strptime(d, '%Y-%m-%d') for d in dates_list if len(d) > 0]
         
     def __str__(self):
-        return("Timeseries holds {} dates, sized {} by {}.".format(self.nbands,
+        return("Timeseries class holding {} dates, sized {} by {}.".format(self.nbands,
                                                                         self.ncols,
                                                                         self.nrows))
     def __repr__(self):
@@ -147,7 +147,6 @@ class Timeseries:
         print("rastersize: ",self.ncols,self.nrows)
         print("The natural block size is the block size that is most efficient for accessing the format, gdal found blocksize: ",self.gdal_recommended_block_size)
         print("set blocksize explicitly: ",x_block_size,", " ,y_block_size)
-        print("bytes required: ", str(8 * self.ncols * self.nrows * self.nbands))
         print("start monitor: ", self.start_monitor)
         print("end monitor: ", self.end_monitor)
         print("start history: ", self.start_hist)
@@ -185,7 +184,7 @@ class Timeseries:
                     
                     if first_horstack==True:
                         data = self.time_series.ReadAsArray(j, i, cols, rows)#.astype("int16")
-                        #data = data*10000
+                        data = data*10000
                         data=data.astype("int16")
                         breaks,means = self.run_bfast(data)
                         breaks_array = breaks
@@ -195,7 +194,7 @@ class Timeseries:
                     # after that add to array
                     else:                    
                         data = self.time_series.ReadAsArray(j, i, cols, rows)#.astype("int16")
-                        #data = data*10000
+                        data = data*10000
                         data=data.astype("int16")
                         breaks,means = self.run_bfast(data)
                         breaks_array = np.concatenate((breaks_array,breaks),axis = 1)
@@ -294,7 +293,7 @@ class Timeseries:
                     )
         
         try:
-            print(pyopencl.get_platforms()[0].get_devices())
+            print("device: ", pyopencl.get_platforms()[0].get_devices())
         except:
             print("You selected  openCL, but no device was found, are you sure you set up a gpu session?")
 
@@ -338,13 +337,12 @@ class Timeseries:
             return(warnings.warn("Warning: More than {} percent of the pixels in this tile lack sufficient data, resulting in NaNs. Consider selecting a longer monitoring period or a larger area.".format(min_perc_lacking_data)))
     
     
-    def log_all_output(self,output_dir_name = 'my_data'):
+    def log_all_output(self,output_dir_name = 'stored_time_series/output'):
         
-        save_location = "stored_time_series"
-        if not os.path.exists(save_location):
-            os.makedirs(save_location)
-        if not os.path.exists(save_location + '/' + output_dir_name):
-            os.makedirs(save_location + '/' + output_dir_name)
+        if not os.path.exists(output_dir_name):
+            os.makedirs(output_dir_name)
+        if not os.path.exists(output_dir_name):
+            os.makedirs(output_dir_name)
         
         # Set save_dir name
         tile_name = self.name.split('/')[-2]
@@ -352,7 +350,7 @@ class Timeseries:
             tile_name = 'single_tile'
         
         # metadata
-        save_name = save_location + "/" + output_dir_name + "/" + tile_name  + "_meta_data.txt"
+        save_name = output_dir_name + "/" + tile_name  + "_meta_data.txt"
         
         attributes = inspect.getmembers(self, lambda a:not(inspect.isroutine(a)))
         with open(save_name, "w") as f:
@@ -362,27 +360,26 @@ class Timeseries:
                     f.write("\n")
         
         # arrays
-        save_means_name = save_location + "/" + output_dir_name + '/' + tile_name + "_means.npy"
-        save_breaks_name = save_location + "/" + output_dir_name + '/' + tile_name + "_breaks.npy"
+        save_means_name = output_dir_name + '/' + tile_name + "_means.npy"
+        save_breaks_name = output_dir_name + '/' + tile_name + "_breaks.npy"
         try:
             np.save(save_means_name, self.means_array)
             np.save(save_breaks_name, self.breaks_array)
         except:
             print("No arrays are currently loaded")
     
-    def load_breaks_means_arrays_from_file(self, output_dir_name = 'my_data'):
+    def load_breaks_means_arrays_from_file(self, output_dir_name = 'stored_time_series/output'):
         '''
         Loads the locally saved means and breaks arrays from log_breaks_means_arrays() method
         '''
         
-        save_location = "stored_time_series"
         
         tile_name = self.name.split('/')[-2]
         if not 'tile' in tile_name:
             tile_name = 'single_tile'
         
-        load_means_name = save_location + "/" + output_dir_name + '/' + tile_name + "_means.npy"
-        load_breaks_name = save_location + "/" + output_dir_name + '/' + tile_name + "_breaks.npy"
+        load_means_name = output_dir_name + '/' + tile_name + "_means.npy"
+        load_breaks_name = output_dir_name + '/' + tile_name + "_breaks.npy"
         
         print(load_means_name)
         print(load_breaks_name)
@@ -391,7 +388,14 @@ class Timeseries:
         self.breaks_array = np.load(load_breaks_name)
     
 
-        
+    def _find_index_date(dates, t):
+
+        for i in range(len(dates)):
+            if t < dates[i]:
+                return i
+
+            return len(dates)
+
     def crop_dates(self, dates):
         """ Crops the input data and the associated
         dates w.r.t. the provided start and end 
@@ -431,117 +435,6 @@ class Timeseries:
         dates_cropped = list(np.array(dates)[start_idx:end_idx])
         self.cropped_dates = dates_cropped
 
-    #### depcrecated ####
-#     def save_monitor_dates(self,output_dir_name = 'my_data'):
-        
-#         start_hist_str = self.start_hist.strftime("%m/%d/%Y%H:%M:%S")
-#         end_monitor_str = self.end_monitor.strftime("%m/%d/%Y%H:%M:%S")
-        
-#         timestamp = {"start_hist": self.start_hist.strftime("%m/%d/%Y"), "end_monitor": self.end_monitor.strftime("%m/%d/%Y")}
-#         with open("stored_time_series/" + output_dir_name + "/timestamp.json","w") as f:
-#             json.dump(timestamp, f)
-    
-#     def load_monitor_dates(self,output_dir_name = 'my_data'):
-        
-#         with open("stored_time_series/" + output_dir_name + "/timestamp.json","r") as f:
-#             timestamp = json.load(f)
-#         print(timestamp["start_hist"])
-#         print(timestamp["end_monitor"])
-#         self.start_hist = datetime.strptime(timestamp["start_hist"], "%d/%m/%Y")
-#         self.end_monitor = datetime.strptime(timestamp["end_monitor"], "%d/%m/%Y")
-        
-#     def log_output_to_txt(self):
-#         '''
-#         Logs all class parameters to logs/[tilename].txt file
-#         '''
-        
-        
-#         self.date = str(datetime.now())
-#         self.device = pyopencl.get_platforms()[0].get_devices()
-        
-#         attributes = inspect.getmembers(self, lambda a:not(inspect.isroutine(a)))
-        
-#         logs_directory = "logs"
-#         if not os.path.exists("logs"):
-#             os.makedirs(logs_directory)
-        
-#         save_dir = self.dir
-#         try:
-#             start_index = save_dir.find("Time_series")
-#         except:
-#             start_index = 1
-#         save_dir = self.dir.replace("/","-")[start_index:] + datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + ".txt"
-        
-        
-#         with open(str(logs_directory + "/" + save_dir), "w") as f:
-#             for a in attributes:
-#                 if not(a[0].startswith('__') and a[0].endswith('__')):
-#                     f.write(str(a))
-#                     f.write("\n")
-    
-#     def log_breaks_means_arrays(self):
-#         '''
-#         Saves breaks and means output arrays locally in output_arrays/[tile_name] + _means.npy|breaks.npy
-#         '''
-        
-        
-#         arrays_directory = "output_arrays"
-#         if not os.path.exists("output_arrays"):
-#             os.makedirs(arrays_directory)
-        
-#         save_dir = self.dir
-#         try:
-#             start_index = save_dir.find("Time_series")
-#         except:
-#             start_index = 1
-        
-#         save_means_dir = arrays_directory + '/' + self.dir.replace("/","-")[start_index:-1] + "_means.npy"
-#         save_breaks_dir = arrays_directory + '/' +self.dir.replace("/","-")[start_index:-1] + "_breaks.npy"
-#         print(save_means_dir)
-#         print(save_breaks_dir)
-#         try:
-#             np.save(save_means_dir, self.means_array)
-#             np.save(save_breaks_dir,self.breaks_array)
-#         except:
-#             print("No arrays are currently loaded")
-    
-#     def load_breaks_means_arrays_from_file(self):
-#         '''
-#         Loads the locally saved means and breaks arrays from log_breaks_means_arrays() method
-#         '''
-        
-#         arrays_directory = "output_arrays"
-#         load_dir = self.dir
-#         try:
-#             start_index = load_dir.find("Time_series")
-#         except:
-#             start_index = 1
-        
-#         load_means_dir = arrays_directory + '/' + self.dir.replace("/","-")[start_index:-1] + "_means.npy"
-#         load_breaks_dir = arrays_directory + '/' +self.dir.replace("/","-")[start_index:-1] + "_breaks.npy"
-        
-#         print(load_means_dir)
-#         print(load_breaks_dir)
-        
-#         self.means_array = np.load(load_means_dir)
-#         self.breaks_array = np.load(load_breaks_dir)
-        
-    # Don't work anymore, fix later
-    def plot_hist(self):
-        histlist = []
-        for x in range(self.nbands):
-            histlist.append(np.isnan(self.raster_stack[x]).sum()/(self.ncols*self.nrows))
-        plt.hist(histlist)
-        plt.show()
-        
-    def get_size(self):
-        total_size = 0
-        for dirpath, dirnames, filenames in os.walk(self.dir):
-            for f in filenames:
-                fp = os.path.join(dirpath, f)
-                # skip if it is symbolic link
-                if not os.path.islink(fp):
-                    total_size += os.path.getsize(fp)
-        print(self.dir + "   holds  " + str(total_size) + " bytes")
+
 
       

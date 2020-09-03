@@ -41,9 +41,14 @@ def get_widgets():
             style = style, layout=layout,))
 
     level_chooser = widgets.interactive(g,
-        i=widgets.FloatSlider(
-            value = 0.25,
+        i=widgets.SelectionSlider(
             description= "Significance level of the monitoring",
+            options = [0.95 , 0.951, 0.952, 0.953, 0.954, 0.955, 0.956, 0.957, 0.958,
+       0.959, 0.96 , 0.961, 0.962, 0.963, 0.964, 0.965, 0.966, 0.967,
+       0.968, 0.969, 0.97 , 0.971, 0.972, 0.973, 0.974, 0.975, 0.976,
+       0.977, 0.978, 0.979, 0.98 , 0.981, 0.982, 0.983, 0.984, 0.985,
+       0.986, 0.987, 0.988, 0.989, 0.99 , 0.991, 0.992, 0.993, 0.994,
+       0.995, 0.996, 0.997, 0.998, 0.999],
             style = style,
             layout = layout, ))
 

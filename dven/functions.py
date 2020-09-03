@@ -3,31 +3,48 @@ import os
 import numpy as np
 from osgeo import gdal
 
-def test():
-    print("hello derp")
-    
+from time_series import Timeseries
+
 def set_output_dir(chooser):
     if not chooser.result:
         print("Defaulting to output directory name \"output\" ")
         save_location = "stored_time_series/output"
         if not os.path.exists(save_location):
             os.makedirs(save_location)
+        return(save_location)
     else:
         print("Output directory name:", chooser.result)
         save_location = "stored_time_series/" + chooser.result
         if not os.path.exists(save_location):
             os.makedirs(save_location)
+        return(save_location)
 
-def get_size(start_path):
-    total_size = 0
-    for dirpath, dirnames, filenames in os.walk(start_path):
-        for f in filenames:
-            fp = os.path.join(dirpath, f)
-            # skip if it is symbolic link
-            if not os.path.islink(fp):
-                total_size += os.path.getsize(fp)
+def set_paths(timeseries_directory):
+    
+    dates_path = os.path.join(timeseries_directory, "dates.csv")
+    data_list=[]
+    tile_paths = []
+    
+    # check for tiles
+    file_list = os.listdir(timeseries_directory)
+    file_list.sort()
+    for file in file_list:
+        if file.startswith('tile'):
+            time_series_path =  timeseries_directory + file + "/"
+            tile_paths.append(time_series_path)
 
-    return total_size
+    # Create Timeseries wrapper for every tile
+    if not tile_paths:
+        print("No tiles, setting up data as one tile")
+        ts_data = Timeseries(timeseries_directory, dates_path)
+        data_list.append(ts_data)
+    else:
+        print("Data consists of tiles, setting up tiles in 'data_list' ")
+        for time_series_path in tile_paths:
+            ts_data = Timeseries(time_series_path, dates_path)
+            data_list.append(ts_data)
+    return data_list
+            
 
 def get_data_dict(time_series_path):
     tile_dict = {}
@@ -99,8 +116,8 @@ def merge_tiles(tile_list, output_dir_name = 'my_data'):
     
     save_location = "stored_time_series"
     
-    save_means_dir = save_location + "/" + output_dir_name + '/' + "all_means.npy"
-    save_breaks_dir = save_location + "/" + output_dir_name + '/' + "all_breaks.npy"
+    save_means_dir = save_location +  output_dir_name + '/' + "all_means.npy"
+    save_breaks_dir = save_location +  output_dir_name + '/' + "all_breaks.npy"
     print(save_means_dir)
     print(save_breaks_dir)
     np.save(save_means_dir, big_means_array)

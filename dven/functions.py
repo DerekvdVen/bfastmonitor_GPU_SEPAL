@@ -9,12 +9,12 @@ def test():
 def set_output_dir(chooser):
     if not chooser.result:
         print("Defaulting to output directory name \"output\" ")
-        save_location = "stored_time_series2/output"
+        save_location = "stored_time_series/output"
         if not os.path.exists(save_location):
             os.makedirs(save_location)
     else:
         print("Output directory name:", chooser.result)
-        save_location = "stored_time_series2/" + chooser.result
+        save_location = "stored_time_series/" + chooser.result
         if not os.path.exists(save_location):
             os.makedirs(save_location)
 

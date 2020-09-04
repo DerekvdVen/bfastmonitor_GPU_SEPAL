@@ -14,7 +14,7 @@ def set_output_dir(chooser,timeseries_dir):
         return(save_location)
     else:
         print("Output directory name:", "stored_time_series/" + chooser.result + '_' + timeseries_dir[-2])
-        save_location = "stored_time_series/" + chooser.result + timeseries_dir[-2]
+        save_location = "stored_time_series/" + chooser.result + '_' +  timeseries_dir[-2]
         if not os.path.exists(save_location):
             os.makedirs(save_location)
         return(save_location)

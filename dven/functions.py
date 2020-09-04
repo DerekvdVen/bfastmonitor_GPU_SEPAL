@@ -5,19 +5,25 @@ from osgeo import gdal
 
 from time_series import Timeseries
 
-def set_output_dir(chooser,timeseries_dir):
+def set_base_output_dir(chooser):
     if not chooser.result:
-        print("Defaulting to output directory name \"output"+ '_' + timeseries_dir[-2] + "\"")
-        save_location = "stored_time_series/output" + '_' + timeseries_dir[-2]
+        print("Defaulting to output directory name \"output" + "/output")
+        save_location = "stored_time_series/output"
         if not os.path.exists(save_location):
             os.makedirs(save_location)
         return(save_location)
     else:
-        print("Output directory name:", "stored_time_series/" + chooser.result + '_' + timeseries_dir[-2])
-        save_location = "stored_time_series/" + chooser.result + '_' +  timeseries_dir[-2]
+        print("Output directory name:", "stored_time_series/" + chooser.result)
+        save_location = "stored_time_series/" + chooser.result
         if not os.path.exists(save_location):
             os.makedirs(save_location)
         return(save_location)
+    
+def set_output_dir(chooser, timeseries_dir):
+    save_location = "stored_time_series/" +  chooser.result + "/" + chooser.result + '_' + timeseries_dir[-2]
+    if not os.path.exists(save_location):
+            os.makedirs(save_location)
+    return(save_location)
 
 def set_paths(timeseries_directory):
     

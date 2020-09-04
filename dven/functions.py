@@ -5,16 +5,16 @@ from osgeo import gdal
 
 from time_series import Timeseries
 
-def set_output_dir(chooser):
+def set_output_dir(chooser,timeseries_dir):
     if not chooser.result:
-        print("Defaulting to output directory name \"output\" ")
-        save_location = "stored_time_series/output"
+        print("Defaulting to output directory name \"output"+ '_' + timeseries_dir[-2] + "\"")
+        save_location = "stored_time_series/output" + '_' + timeseries_dir[-2]
         if not os.path.exists(save_location):
             os.makedirs(save_location)
         return(save_location)
     else:
-        print("Output directory name:", chooser.result)
-        save_location = "stored_time_series/" + chooser.result
+        print("Output directory name:", "stored_time_series/" + chooser.result + '_' + timeseries_dir[-2])
+        save_location = "stored_time_series/" + chooser.result + timeseries_dir[-2]
         if not os.path.exists(save_location):
             os.makedirs(save_location)
         return(save_location)
@@ -116,8 +116,8 @@ def merge_tiles(tile_list, output_dir_name = 'my_data'):
     
     save_location = "stored_time_series"
     
-    save_means_dir = save_location +  output_dir_name + '/' + "all_means.npy"
-    save_breaks_dir = save_location +  output_dir_name + '/' + "all_breaks.npy"
+    save_means_dir = output_dir_name + '/' + "all_means.npy"
+    save_breaks_dir = output_dir_name + '/' + "all_breaks.npy"
     print(save_means_dir)
     print(save_breaks_dir)
     np.save(save_means_dir, big_means_array)

@@ -11,9 +11,9 @@ def get_widgets():
 
     output_directory_chooser = widgets.interactive(g, 
         i=widgets.Text(
-            description="Output storage name:", 
+            description="Output storage name: (country/location name, e.g. \"Guyana\")", 
             placeholder = "output",
-            style = {'description_width': 'initial'},))
+            style = style, layout =layout,))
     
     k_chooser = widgets.interactive(g, 
         i=widgets.Dropdown(

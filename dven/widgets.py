@@ -52,6 +52,7 @@ def get_widgets():
             style = style,
             layout = layout, ))
 
+    
     backend_chooser = widgets.interactive(g, 
         i=widgets.Dropdown(
             options=['opencl','python'],
@@ -59,7 +60,28 @@ def get_widgets():
             description='backend',
             style = style, layout = layout,))
     
-    return(output_directory_chooser,k_chooser,freq_chooser,trend_chooser,hfrac_chooser,level_chooser,backend_chooser)
+    load_chooser = widgets.interactive(g,
+        i=widgets.Checkbox(
+            value = False, 
+            description= "load tiles",
+            style = style, layout=layout,))
+    
+    block_size_chooser = widgets.interactive(g, 
+        i=widgets.Dropdown(
+            options=[128,256,512,1080],
+            value=256,
+            description='block size, bigger is generally faster, but may result in memory issues',
+            style = style, layout = layout,))
+    
+    plot_display_data_chooser = widgets.interactive(g, 
+        i=widgets.Dropdown(
+            options=['all_negative_breaks','all_negative_means','all_means','all_breaks'],
+            value='all_means',
+            description='data to plot',
+            style = style, layout = layout,))
+    
+    
+    return(output_directory_chooser,k_chooser,freq_chooser,trend_chooser,hfrac_chooser,level_chooser,backend_chooser, load_chooser, block_size_chooser, plot_display_data_chooser)
 
 
 def get_dates_widgets(options, index):

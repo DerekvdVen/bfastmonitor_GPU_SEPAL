@@ -1,13 +1,22 @@
 # module for functions used in the python bfastmonitor GPU
 import os
 import numpy as np
+import json
+
+import folium
+from folium.plugins import FloatImage
+import base64
+
 from osgeo import gdal
+from matplotlib import cm
 
 from time_series import Timeseries
 
+from PIL import Image
+
 def set_base_output_dir(chooser):
     if not chooser.result:
-        print("Defaulting to output directory name \"output" + "/output")
+        print("Defaulting to output directory name: stored_time_series/output")
         save_location = "stored_time_series/output"
         if not os.path.exists(save_location):
             os.makedirs(save_location)
@@ -130,3 +139,44 @@ def merge_tiles(tile_list, output_dir_name = 'my_data'):
     np.save(save_breaks_dir, big_breaks_array)
 
     return(big_means_array, big_breaks_array)
+
+def normalize(array): 
+    max_n = np.nanmax(array)
+    min_n = np.nanmin(array)
+    array = (array - min_n)/(max_n - min_n)
+    return(array)
+
+def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
+    array_norm = normalize(array)
+    
+    im = Image.fromarray(np.uint8(color_code(array_norm)*255))
+    
+    imga = im.convert("RGBA")
+    
+    imga.save(output_dir + "/" + save_name +  ".png","PNG")
+    
+def merge_plots(base_output_dir = "output", plot_name = "all_means.png"):
+    
+    basemap = False
+    for directory in os.listdir(base_output_dir):
+        if not directory.startswith('.'):
+            print(directory)
+            with open(base_output_dir + "/" + directory + "/corners.json","r") as f:
+                corner_dict = json.load(f)
+            min_lat = corner_dict["min_lat"]
+            min_lon = corner_dict["min_lon"]
+            max_lat = corner_dict["max_lat"]
+            max_lon = corner_dict["max_lon"]
+            
+            
+            if basemap == False:
+                m = folium.folium.Map(location = (min_lat,min_lon), tiles = "Stamen Terrain",zoom_start=9)
+                basemap = True
+                
+            folium.raster_layers.ImageOverlay(
+                image = base_output_dir + "/" + directory +"/" + plot_name,
+                bounds=[[min_lat, min_lon], [max_lat, max_lon]],
+            ).add_to(m)
+
+    return(m)
+

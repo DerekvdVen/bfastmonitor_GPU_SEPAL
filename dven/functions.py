@@ -9,6 +9,9 @@ import base64
 
 from osgeo import gdal
 from matplotlib import cm
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
 
 from time_series import Timeseries
 
@@ -155,6 +158,20 @@ def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
     
     imga.save(output_dir + "/" + save_name +  ".png","PNG")
     
+
+    
+    fig, ax = plt.subplots(figsize=(6, 1))
+    fig.subplots_adjust(bottom=0.5)
+
+    cmap = mpl.cm.Spectral
+    norm = mpl.colors.Normalize(np.nanmin(array), np.nanmax(array))
+
+    cb1 = mpl.colorbar.ColorbarBase(ax, cmap=cmap,
+                                    norm=norm,
+                                    orientation='horizontal')
+    cb1.set_label(save_name)
+    plt.savefig("output/testcolorbar.png",bbox_inches='tight')
+    
 def merge_plots(base_output_dir = "output", plot_name = "all_means.png"):
     
     basemap = False
@@ -172,11 +189,13 @@ def merge_plots(base_output_dir = "output", plot_name = "all_means.png"):
             if basemap == False:
                 m = folium.folium.Map(location = (min_lat,min_lon), tiles = "Stamen Terrain",zoom_start=9)
                 basemap = True
-                
-            folium.raster_layers.ImageOverlay(
-                image = base_output_dir + "/" + directory +"/" + plot_name,
-                bounds=[[min_lat, min_lon], [max_lat, max_lon]],
-            ).add_to(m)
+            try:    
+                folium.raster_layers.ImageOverlay(
+                    image = base_output_dir + "/" + directory +"/" + plot_name,
+                    bounds=[[min_lat, min_lon], [max_lat, max_lon]],
+                ).add_to(m)
+            except:
+                print(directory + " does not have this data output stored")
 
     return(m)
 

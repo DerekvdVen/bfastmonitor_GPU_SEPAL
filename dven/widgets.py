@@ -75,7 +75,7 @@ def get_widgets():
     
     plot_display_data_chooser = widgets.interactive(g, 
         i=widgets.Dropdown(
-            options=['all_negative_breaks','all_negative_means','all_means','all_breaks'],
+            options=['all_negative_breaks','all_negative_means','all_means','all_breaks','breaks_per_year'],
             value='all_means',
             description='data to plot',
             style = style, layout = layout,))

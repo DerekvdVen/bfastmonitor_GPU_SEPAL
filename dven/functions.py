@@ -18,6 +18,7 @@ from time_series import Timeseries
 from PIL import Image
 
 def set_base_output_dir(chooser):
+    #general.py
     if not chooser.result:
         print("Defaulting to output directory name: stored_time_series/output")
         save_location = "stored_time_series/output"
@@ -32,13 +33,14 @@ def set_base_output_dir(chooser):
         return(save_location)
     
 def set_output_dir(chooser, timeseries_dir):
+    #general.py
     save_location = "stored_time_series/" +  chooser.result + "/" + chooser.result + '_' + timeseries_dir[-2]
     if not os.path.exists(save_location):
             os.makedirs(save_location)
     return(save_location)
 
 def set_paths(timeseries_directory):
-    
+    #general tiles.py
     dates_path = os.path.join(timeseries_directory, "dates.csv")
     data_list=[]
     tile_paths = []
@@ -65,6 +67,7 @@ def set_paths(timeseries_directory):
             
 
 def get_data_dict(time_series_path):
+    #do we still use this?
     tile_dict = {}
     
     time_series = gdal.Open(time_series_path)
@@ -81,7 +84,7 @@ def get_data_dict(time_series_path):
     return(tile_dict)
 
 def _find_index_date(dates, t):
-
+    #tiles.py
     for i in range(len(dates)):
         if t < dates[i]:
             return i
@@ -89,6 +92,7 @@ def _find_index_date(dates, t):
     return len(dates)
                 
 def merge_tiles(tile_list, output_dir_name = 'my_data'):
+    #tiles.py
     x_locs = []
     y_locs = []
     x_tiles = []
@@ -144,58 +148,8 @@ def merge_tiles(tile_list, output_dir_name = 'my_data'):
     return(big_means_array, big_breaks_array)
 
 def normalize(array): 
+    #tiles.py
     max_n = np.nanmax(array)
     min_n = np.nanmin(array)
     array = (array - min_n)/(max_n - min_n)
     return(array)
-
-def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
-    array_norm = normalize(array)
-    
-    im = Image.fromarray(np.uint8(color_code(array_norm)*255))
-    
-    imga = im.convert("RGBA")
-    
-    imga.save(output_dir + "/" + save_name +  ".png","PNG")
-    
-
-    
-    fig, ax = plt.subplots(figsize=(6, 1))
-    fig.subplots_adjust(bottom=0.5)
-
-    cmap = mpl.cm.Spectral
-    norm = mpl.colors.Normalize(np.nanmin(array), np.nanmax(array))
-
-    cb1 = mpl.colorbar.ColorbarBase(ax, cmap=cmap,
-                                    norm=norm,
-                                    orientation='horizontal')
-    cb1.set_label(save_name)
-    plt.savefig("output/testcolorbar.png",bbox_inches='tight')
-    
-def merge_plots(base_output_dir = "output", plot_name = "all_means.png"):
-    
-    basemap = False
-    for directory in os.listdir(base_output_dir):
-        if not directory.startswith('.'):
-            print(directory)
-            with open(base_output_dir + "/" + directory + "/corners.json","r") as f:
-                corner_dict = json.load(f)
-            min_lat = corner_dict["min_lat"]
-            min_lon = corner_dict["min_lon"]
-            max_lat = corner_dict["max_lat"]
-            max_lon = corner_dict["max_lon"]
-            
-            
-            if basemap == False:
-                m = folium.folium.Map(location = (min_lat,min_lon), tiles = "Stamen Terrain",zoom_start=9)
-                basemap = True
-            try:    
-                folium.raster_layers.ImageOverlay(
-                    image = base_output_dir + "/" + directory +"/" + plot_name,
-                    bounds=[[min_lat, min_lon], [max_lat, max_lon]],
-                ).add_to(m)
-            except:
-                print(directory + " does not have this data output stored")
-
-    return(m)
-

@@ -139,11 +139,9 @@ def plot_output_matplotlib(idx_starts,breaks_plot_years, ticklist):
     
     
 def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif"):
-    total_ncols = 0
-    total_nrows = 0
-    for tile in data_list:
-        total_ncols += tile.ncols
-        total_nrows += tile.nrows
+    
+    total_ncols = array.shape[1]
+    total_nrows = array.shape[0]
         
     if array.dtype == "int32":
         etype = gdal.GDT_Int32

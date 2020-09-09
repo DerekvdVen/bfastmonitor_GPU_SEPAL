@@ -30,7 +30,7 @@ def get_widgets():
 
     trend_chooser = widgets.interactive(g,
         i=widgets.Checkbox(
-            value = True, 
+            value = False, 
             description= "add trend",
             style = style, layout=layout,))
 

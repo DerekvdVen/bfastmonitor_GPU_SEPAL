@@ -184,7 +184,7 @@ class Timeseries:
                     
                     if first_horstack==True:
                         data = self.time_series.ReadAsArray(j, i, cols, rows)#.astype("int16")
-                        data = data*10000
+                        #data = data*10000
                         data=data.astype("int16")
                         breaks,means = self.run_bfast(data)
                         breaks_array = breaks
@@ -194,7 +194,7 @@ class Timeseries:
                     # after that add to array
                     else:                    
                         data = self.time_series.ReadAsArray(j, i, cols, rows)#.astype("int16")
-                        data = data*10000
+                        #data = data*10000
                         data=data.astype("int16")
                         breaks,means = self.run_bfast(data)
                         breaks_array = np.concatenate((breaks_array,breaks),axis = 1)

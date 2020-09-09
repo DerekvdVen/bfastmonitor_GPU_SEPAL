@@ -18,7 +18,7 @@ from time_series import Timeseries
 from PIL import Image
 
 def set_base_output_dir(chooser):
-    #general.py
+    #general.pyme
     if not chooser.result:
         print("Defaulting to output directory name: stored_time_series/output")
         save_location = "stored_time_series/output"
@@ -145,6 +145,7 @@ def merge_tiles(tile_list, output_dir_name = 'my_data'):
     np.save(save_means_dir, big_means_array)
     np.save(save_breaks_dir, big_breaks_array)
 
+    print("arrays saved in " +  output_dir_name)
     return(big_means_array, big_breaks_array)
 
 def normalize(array): 

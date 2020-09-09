@@ -52,13 +52,13 @@ class Timeseries:
         
         # Open the timeseries to extract geo-metadata
         self.time_series = gdal.Open(self.name)
-        geotransform = self.time_series.GetGeoTransform()
+        self.geotransform = self.time_series.GetGeoTransform()
         
         # Store geo-metadata
-        self.xpixelsize = geotransform[1]
-        self.ypixelsize = geotransform[5]
-        self.latitude = geotransform[3]
-        self.longitude = geotransform[0]
+        self.xpixelsize = self.geotransform[1]
+        self.ypixelsize = self.geotransform[5]
+        self.latitude = self.geotransform[3]
+        self.longitude = self.geotransform[0]
         self.ncols = self.time_series.RasterXSize
         self.nrows = self.time_series.RasterYSize
         self.projection = self.time_series.GetProjection()

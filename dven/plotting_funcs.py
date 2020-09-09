@@ -43,7 +43,11 @@ def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
                                     norm=norm,
                                     orientation='horizontal')
     cb1.set_label(save_name)
-    plt.savefig("output/testcolorbar.png",bbox_inches='tight')
+    
+  
+    plt.savefig(output_dir + "/" + "testcolorbar.png",bbox_inches='tight')
+    
+    print("saved in " + output_dir + "/" + save_name + ".png")
     
 def merge_plots(base_output_dir = "output", plot_name = "all_means.png"):
     #plotting.py
@@ -133,6 +137,39 @@ def plot_output_matplotlib(idx_starts,breaks_plot_years, ticklist):
 
     plt.show()
     
+    
+def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif"):
+    total_ncols = 0
+    total_nrows = 0
+    for tile in data_list:
+        total_ncols += tile.ncols
+        total_nrows += tile.nrows
+        
+    if array.dtype == "int32":
+        etype = gdal.GDT_Int32
+    else:
+        etype = gdal.GDT_Float32
+        
+    geotransform = data_list[0].geotransform
+    projection = data_list[0].projection
+    
+    save_location = output_dir + "/geotifs"
+    if not os.path.exists(save_location):
+        os.makedirs(save_location)
+    
+    dst_ds = gdal.GetDriverByName('GTiff').Create(save_location + "/" + output_name, 
+                                                  xsize = total_ncols, 
+                                                  ysize = total_nrows, 
+                                                  bands = 1,
+                                                  eType = etype)
+
+    dst_ds.SetGeoTransform(geotransform)
+    dst_ds.SetProjection(projection)
+    dst_ds.GetRasterBand(1).WriteArray(array)
+    dst_ds.FlushCache()
+    del dst_ds
+    print("saved in " + save_location + "/" + output_name)
+
 def set_corners(output_dir, data_list):
 
     # set corners
@@ -161,3 +198,5 @@ def set_corners(output_dir, data_list):
 
     with open(output_dir + "/" + "corners.json","w") as f:
         json.dump(corner_dict, f)
+    print("saved in " + output_dir + "/" + "corners.json")
+     

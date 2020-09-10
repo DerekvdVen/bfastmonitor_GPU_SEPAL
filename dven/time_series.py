@@ -134,11 +134,11 @@ class Timeseries:
         start_time = time.time()
         
         if not x_block_size:
-            x_block_size =  self.block_size[0]
+            x_block_size = self.gdal_recommended_block_size[0]
         else:
             self.x_block_size = x_block_size
         if not y_block_size:
-            y_block_size = self.block_size[1]
+            y_block_size = self.gdal_recommended_block_size[1]
         else:
             self.y_block_size = y_block_size
         

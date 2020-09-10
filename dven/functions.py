@@ -177,3 +177,31 @@ def normalize(array):
     min_n = np.nanmin(array)
     array = (array - min_n)/(max_n - min_n)
     return(array)
+
+
+def get_julian_dates(dates_array, breaks_array):
+    breaks_array = breaks_array.astype(np.int)
+    for i in range(len(dates_array)):
+        date = dates_array[i]
+        tt = date.timetuple()
+        julian_date = tt.tm_year * 1000 + tt.tm_yday
+        breaks_array[breaks_array == i] = julian_date
+    return(breaks_array)
+
+
+def select_negatives(means,breaks):
+    no_breaks_indices = (breaks == -1)
+    means[no_breaks_indices] = np.nan
+    means[means > 0] = np.nan # only want negative mean changes
+
+    breaks_neg = breaks.astype(np.float)
+    breaks_neg[breaks == -2] = np.nan
+    breaks_neg[breaks == -1] = np.nan
+    binary_breaks = (breaks_neg != np.nan)
+    
+    breaks_neg[means >= 0] = np.nan
+    negative_binary_breaks = (breaks_neg != np.nan)
+
+    
+    return(means, breaks_neg, binary_breaks, negative_binary_breaks)
+

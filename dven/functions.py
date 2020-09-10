@@ -136,16 +136,19 @@ def merge_tiles(tile_list, output_dir_name = 'my_data'):
             big_means_array = np.concatenate((big_means_array, means_array),axis = 0)
             big_breaks_array = np.concatenate((big_breaks_array, breaks_array),axis = 0)
     
-    save_location = "stored_time_series"
+        save_location = output_dir_name + "/numpy_arrays"
     
-    save_means_dir = output_dir_name + '/' + "all_means.npy"
-    save_breaks_dir = output_dir_name + '/' + "all_breaks.npy"
+    if not os.path.exists(save_location):
+        os.makedirs(save_location)
+    
+    save_means_dir = save_location + "/all_magnitudes.npy"
+    save_breaks_dir = save_location + "/all_breaks.npy"
     print(save_means_dir)
     print(save_breaks_dir)
     np.save(save_means_dir, big_means_array)
     np.save(save_breaks_dir, big_breaks_array)
 
-    print("arrays saved in " +  output_dir_name)
+    print("arrays saved in " +  save_location)
     return(big_means_array, big_breaks_array)
 
 def normalize(array): 

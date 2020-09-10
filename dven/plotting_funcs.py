@@ -6,6 +6,7 @@ import json
 import folium
 from folium.plugins import FloatImage
 import base64
+from folium import IFrame
 
 from osgeo import gdal
 from matplotlib import cm
@@ -22,17 +23,18 @@ from PIL import Image
 from functions import normalize
 
 def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
-    #plotting.py
+
     array_norm = normalize(array)
-    
     im = Image.fromarray(np.uint8(color_code(array_norm)*255))
-    
     imga = im.convert("RGBA")
     
-    imga.save(output_dir + "/" + save_name +  ".png","PNG")
+    save_location = output_dir + "/" + "pngs/"
+    if not os.path.exists(save_location):
+        os.makedirs(save_location)
+    
+    imga.save(save_location + save_name + ".png","PNG")
     
 
-    
     fig, ax = plt.subplots(figsize=(6, 1))
     fig.subplots_adjust(bottom=0.5)
 
@@ -44,17 +46,22 @@ def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
                                     orientation='horizontal')
     cb1.set_label(save_name)
     
-  
-    plt.savefig(output_dir + "/" + "testcolorbar.png",bbox_inches='tight')
+    save_location2 = output_dir + "/" + "colorbars"
+    if not os.path.exists(save_location2):
+        os.makedirs(save_location2)
     
-    print("saved in " + output_dir + "/" + save_name + ".png")
+    plt.savefig(save_location2 + "/colorbar_" + save_name + ".png",bbox_inches='tight')
     
-def merge_plots(base_output_dir = "output", plot_name = "all_means.png"):
+    print("png saved in " + save_location + save_name + ".png")
+    print("colorbar saved in " + save_location2 + "/colorbar_" + save_name + ".png")
+    
+def merge_plots(data_list, base_output_dir = "output", plot_name = "all_means.png"):
     #plotting.py
     basemap = False
     for directory in os.listdir(base_output_dir):
         if not directory.startswith('.'):
             print(directory)
+            print(base_output_dir + "/" + directory + "/colorbars/colorbar_" + plot_name)
             try:
                 with open(base_output_dir + "/" + directory + "/corners.json","r") as f:
                     corner_dict = json.load(f)
@@ -66,12 +73,28 @@ def merge_plots(base_output_dir = "output", plot_name = "all_means.png"):
 
                 if basemap == False:
                     m = folium.folium.Map(location = (min_lat,min_lon), tiles = "Stamen Terrain",zoom_start=9)
+                    resolution, width, height = 75, 4,4
+                    encoded = base64.b64encode(open(base_output_dir + "/" + directory + "/colorbars/colorbar_" + plot_name, 'rb').read()).decode()
+
+
+                    html = '<img src="data:image/png;base64,{}">'.format
+                    iframe = IFrame(html(encoded), width=(width*resolution)+20, height=(height*resolution)+20)
+                    popup = folium.Popup(iframe, max_width=2650)
+
+                    icon = folium.Icon(color="red", icon="ok")
+                    marker = folium.Marker([data_list[0].latitude, data_list[0].longitude], popup=popup, icon=icon)
+                    marker.add_to(m)
+
+
                     basemap = True
 
                 folium.raster_layers.ImageOverlay(
-                    image = base_output_dir + "/" + directory +"/" + plot_name,
+                    image = base_output_dir + "/" + directory + "/pngs/" + plot_name,
                     bounds=[[min_lat, min_lon], [max_lat, max_lon]],
                 ).add_to(m)
+
+
+                
             except:
                 print(directory + " does not have this data output stored")
 

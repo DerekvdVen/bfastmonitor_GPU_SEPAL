@@ -391,7 +391,7 @@ class Timeseries:
     
 
     def _find_index_date(dates, t):
-    '''Returns the index of the first date larger than t'''
+        '''Returns the index of the first date larger than t'''
         for i in range(len(dates)):
             if t < dates[i]:
                 return i

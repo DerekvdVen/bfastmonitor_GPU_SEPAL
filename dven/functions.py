@@ -18,7 +18,9 @@ from time_series import Timeseries
 from PIL import Image
 
 def set_base_output_dir(chooser):
-    #general.pyme
+
+    '''takes an ipywidget chooser as input, creates the base output directory, and returns it'''
+    
     if not chooser.result:
         print("Defaulting to output directory name: stored_time_series/output")
         save_location = "stored_time_series/output"
@@ -33,14 +35,24 @@ def set_base_output_dir(chooser):
         return(save_location)
     
 def set_output_dir(chooser, timeseries_dir):
-    #general.py
+
+    '''
+    Takes an ipywidget chooser and the timeseries directory as input.
+    Creates output directories based on which timeseries directory you are in, and returns it
+    '''
+    
     save_location = "stored_time_series/" +  chooser.result + "/" + chooser.result + '_' + timeseries_dir[-2]
     if not os.path.exists(save_location):
             os.makedirs(save_location)
     return(save_location)
 
 def set_paths(timeseries_directory):
-    #general tiles.py
+
+    '''
+    Takes the timeseries directory path and creates Timeseries wrapper classes for every tile in the dir. 
+    Returns a list of the Timeseries classes tiles
+    '''
+    
     dates_path = os.path.join(timeseries_directory, "dates.csv")
     data_list=[]
     tile_paths = []
@@ -67,7 +79,8 @@ def set_paths(timeseries_directory):
             
 
 def get_data_dict(time_series_path):
-    #do we still use this?
+
+    '''Deprecated'''
     tile_dict = {}
     
     time_series = gdal.Open(time_series_path)
@@ -84,7 +97,10 @@ def get_data_dict(time_series_path):
     return(tile_dict)
 
 def _find_index_date(dates, t):
-    #tiles.py
+    
+    
+    '''Returns the index of the first date larger than t'''
+    
     for i in range(len(dates)):
         if t < dates[i]:
             return i
@@ -92,7 +108,9 @@ def _find_index_date(dates, t):
     return len(dates)
                 
 def merge_tiles(tile_list, output_dir_name = 'my_data'):
-    #tiles.py
+    
+    '''Merges the data_list of Timeseries classes tiles, saves and returns them'''
+    
     x_locs = []
     y_locs = []
     x_tiles = []
@@ -152,7 +170,9 @@ def merge_tiles(tile_list, output_dir_name = 'my_data'):
     return(big_means_array, big_breaks_array)
 
 def normalize(array): 
-    #tiles.py
+
+    '''Normalizes an array'''
+    
     max_n = np.nanmax(array)
     min_n = np.nanmin(array)
     array = (array - min_n)/(max_n - min_n)

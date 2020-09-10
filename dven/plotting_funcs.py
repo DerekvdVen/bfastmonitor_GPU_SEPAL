@@ -24,6 +24,8 @@ from functions import normalize
 
 def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
 
+    '''Saves an array and a related colorbar as seperate pngs'''
+    
     array_norm = normalize(array)
     im = Image.fromarray(np.uint8(color_code(array_norm)*255))
     imga = im.convert("RGBA")
@@ -56,7 +58,9 @@ def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
     print("colorbar saved in " + save_location2 + "/colorbar_" + save_name + ".png")
     
 def merge_plots(data_list, base_output_dir = "output", plot_name = "all_means.png"):
-    #plotting.py
+
+    '''Looks for plot name in all timeseries directories in the base_output_dir, so as to plot the entire AOI as a Folium map'''
+    
     basemap = False
     for directory in os.listdir(base_output_dir):
         if not directory.startswith('.'):
@@ -101,7 +105,12 @@ def merge_plots(data_list, base_output_dir = "output", plot_name = "all_means.pn
     return(m)
 
 def classify_output(start_monitor,end_monitor,breaks_plot,dates_array):
-    #plotting.py
+
+    '''
+    Classifies the indexes of the breaks per year
+    Returns a classified raster, the index of the first break of every year, and a list of years for plotting
+    '''
+    
     idx_starts = {}
 
     # this gives the index of all the data points in the year and after
@@ -134,6 +143,8 @@ def classify_output(start_monitor,end_monitor,breaks_plot,dates_array):
 
 def plot_output_matplotlib(idx_starts,breaks_plot_years, ticklist):
 
+    '''Creates a matplotlib plot of the breaks per year'''
+    
     bins = len(idx_starts)
 
     cmap = plt.get_cmap("Spectral")
@@ -163,6 +174,8 @@ def plot_output_matplotlib(idx_starts,breaks_plot_years, ticklist):
     
 def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif"):
     
+    '''Exports rasters as geotiffs'''
+    
     total_ncols = array.shape[1]
     total_nrows = array.shape[0]
         
@@ -189,10 +202,12 @@ def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif"):
     dst_ds.GetRasterBand(1).WriteArray(array)
     dst_ds.FlushCache()
     del dst_ds
-    print("saved in " + save_location + "/" + output_name)
+    print("Geotiff saved in " + save_location + "/" + output_name)
 
 def set_corners(output_dir, data_list):
 
+    '''Gets the latitude longitude corners around the tiles, and stores them in a json file for plotting the folium map'''
+    
     # set corners
     min_lat = data_list[0].latitude
     max_lat = data_list[0].latitude

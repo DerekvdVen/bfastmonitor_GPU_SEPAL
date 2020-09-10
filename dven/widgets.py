@@ -1,3 +1,5 @@
+# The collection of widgets used in the notebooks
+
 import ipywidgets as widgets
 from ipywidgets import Layout
 

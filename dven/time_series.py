@@ -339,6 +339,8 @@ class Timeseries:
     
     def log_all_output(self,output_dir_name = 'stored_time_series/output'):
         
+        '''Logs the Timeseries output of the respective tile'''
+        
         if not os.path.exists(output_dir_name):
             os.makedirs(output_dir_name)
         if not os.path.exists(output_dir_name):
@@ -389,7 +391,7 @@ class Timeseries:
     
 
     def _find_index_date(dates, t):
-
+    '''Returns the index of the first date larger than t'''
         for i in range(len(dates)):
             if t < dates[i]:
                 return i

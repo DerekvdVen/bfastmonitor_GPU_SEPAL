@@ -12,6 +12,7 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
+import copy
 
 from time_series import Timeseries
 

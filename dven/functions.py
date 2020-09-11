@@ -12,13 +12,16 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
+import copy
 
 from time_series import Timeseries
 
 from PIL import Image
 
 def set_base_output_dir(chooser):
-    #general.pyme
+
+    '''takes an ipywidget chooser as input, creates the base output directory, and returns it'''
+    
     if not chooser.result:
         print("Defaulting to output directory name: stored_time_series/output")
         save_location = "stored_time_series/output"
@@ -33,14 +36,24 @@ def set_base_output_dir(chooser):
         return(save_location)
     
 def set_output_dir(chooser, timeseries_dir):
-    #general.py
+
+    '''
+    Takes an ipywidget chooser and the timeseries directory as input.
+    Creates output directories based on which timeseries directory you are in, and returns it
+    '''
+    
     save_location = "stored_time_series/" +  chooser.result + "/" + chooser.result + '_' + timeseries_dir[-2]
     if not os.path.exists(save_location):
             os.makedirs(save_location)
     return(save_location)
 
 def set_paths(timeseries_directory):
-    #general tiles.py
+
+    '''
+    Takes the timeseries directory path and creates Timeseries wrapper classes for every tile in the dir. 
+    Returns a list of the Timeseries classes tiles
+    '''
+    
     dates_path = os.path.join(timeseries_directory, "dates.csv")
     data_list=[]
     tile_paths = []
@@ -67,7 +80,8 @@ def set_paths(timeseries_directory):
             
 
 def get_data_dict(time_series_path):
-    #do we still use this?
+
+    '''Deprecated'''
     tile_dict = {}
     
     time_series = gdal.Open(time_series_path)
@@ -84,7 +98,10 @@ def get_data_dict(time_series_path):
     return(tile_dict)
 
 def _find_index_date(dates, t):
-    #tiles.py
+    
+    
+    '''Returns the index of the first date larger than t'''
+    
     for i in range(len(dates)):
         if t < dates[i]:
             return i
@@ -92,7 +109,9 @@ def _find_index_date(dates, t):
     return len(dates)
                 
 def merge_tiles(tile_list, output_dir_name = 'my_data'):
-    #tiles.py
+    
+    '''Merges the data_list of Timeseries classes tiles, saves and returns them'''
+    
     x_locs = []
     y_locs = []
     x_tiles = []
@@ -136,21 +155,55 @@ def merge_tiles(tile_list, output_dir_name = 'my_data'):
             big_means_array = np.concatenate((big_means_array, means_array),axis = 0)
             big_breaks_array = np.concatenate((big_breaks_array, breaks_array),axis = 0)
     
-    save_location = "stored_time_series"
+        save_location = output_dir_name + "/numpy_arrays"
     
-    save_means_dir = output_dir_name + '/' + "all_means.npy"
-    save_breaks_dir = output_dir_name + '/' + "all_breaks.npy"
+    if not os.path.exists(save_location):
+        os.makedirs(save_location)
+    
+    save_means_dir = save_location + "/all_magnitudes.npy"
+    save_breaks_dir = save_location + "/all_breaks.npy"
     print(save_means_dir)
     print(save_breaks_dir)
     np.save(save_means_dir, big_means_array)
     np.save(save_breaks_dir, big_breaks_array)
 
-    print("arrays saved in " +  output_dir_name)
+    print("arrays saved in " +  save_location)
     return(big_means_array, big_breaks_array)
 
 def normalize(array): 
-    #tiles.py
+
+    '''Normalizes an array'''
+    
     max_n = np.nanmax(array)
     min_n = np.nanmin(array)
     array = (array - min_n)/(max_n - min_n)
     return(array)
+
+
+def get_julian_dates(dates_array, breaks_array):
+    for i in range(len(dates_array)):
+        date = dates_array[i]
+        tt = date.timetuple()
+        julian_date = tt.tm_year * 1000 + tt.tm_yday
+        breaks_array[breaks_array == i] = julian_date
+    return(breaks_array)
+
+
+def select_negatives(means,breaks):
+    no_breaks_indices = (breaks == -1) # no -2 used by fabian
+    means[no_breaks_indices] = np.nan
+    means[means > 0] = 0 # only want negative mean changes
+
+    breaks = breaks.astype(np.float)
+    breaks[breaks == -2] = np.nan
+    breaks[breaks == -1] = np.nan
+    
+    
+    binary_breaks = np.invert(np.isnan(breaks))
+    breaks_neg = copy.deepcopy(breaks)
+    breaks_neg[means >= 0] = np.nan
+    negative_binary_breaks = np.invert(np.isnan(breaks_neg))
+    
+    means[means == 0] = np.nan
+    return(means, breaks, breaks_neg, binary_breaks, negative_binary_breaks)
+

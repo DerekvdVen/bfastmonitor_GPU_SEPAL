@@ -6,6 +6,7 @@ import json
 import folium
 from folium.plugins import FloatImage
 import base64
+from folium import IFrame
 
 from osgeo import gdal
 from matplotlib import cm
@@ -22,17 +23,20 @@ from PIL import Image
 from functions import normalize
 
 def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
-    #plotting.py
+
+    '''Saves an array and a related colorbar as seperate pngs'''
+    
     array_norm = normalize(array)
-    
     im = Image.fromarray(np.uint8(color_code(array_norm)*255))
-    
     imga = im.convert("RGBA")
     
-    imga.save(output_dir + "/" + save_name +  ".png","PNG")
+    save_location = output_dir + "/" + "pngs/"
+    if not os.path.exists(save_location):
+        os.makedirs(save_location)
+    
+    imga.save(save_location + save_name + ".png","PNG")
     
 
-    
     fig, ax = plt.subplots(figsize=(6, 1))
     fig.subplots_adjust(bottom=0.5)
 
@@ -44,17 +48,24 @@ def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
                                     orientation='horizontal')
     cb1.set_label(save_name)
     
-  
-    plt.savefig(output_dir + "/" + "testcolorbar.png",bbox_inches='tight')
+    save_location2 = output_dir + "/" + "colorbars"
+    if not os.path.exists(save_location2):
+        os.makedirs(save_location2)
     
-    print("saved in " + output_dir + "/" + save_name + ".png")
+    plt.savefig(save_location2 + "/colorbar_" + save_name + ".png",bbox_inches='tight')
     
-def merge_plots(base_output_dir = "output", plot_name = "all_means.png"):
-    #plotting.py
+    print("png saved in " + save_location + save_name + ".png")
+    print("colorbar saved in " + save_location2 + "/colorbar_" + save_name + ".png")
+    
+def merge_plots(data_list, base_output_dir = "output", plot_name = "all_means.png"):
+
+    '''Looks for plot name in all timeseries directories in the base_output_dir, so as to plot the entire AOI as a Folium map'''
+    
     basemap = False
     for directory in os.listdir(base_output_dir):
         if not directory.startswith('.'):
             print(directory)
+            print(base_output_dir + "/" + directory + "/colorbars/colorbar_" + plot_name)
             try:
                 with open(base_output_dir + "/" + directory + "/corners.json","r") as f:
                     corner_dict = json.load(f)
@@ -66,19 +77,40 @@ def merge_plots(base_output_dir = "output", plot_name = "all_means.png"):
 
                 if basemap == False:
                     m = folium.folium.Map(location = (min_lat,min_lon), tiles = "Stamen Terrain",zoom_start=9)
+                    resolution, width, height = 75, 4,4
+                    encoded = base64.b64encode(open(base_output_dir + "/" + directory + "/colorbars/colorbar_" + plot_name, 'rb').read()).decode()
+
+
+                    html = '<img src="data:image/png;base64,{}">'.format
+                    iframe = IFrame(html(encoded), width=(width*resolution)+20, height=(height*resolution)+20)
+                    popup = folium.Popup(iframe, max_width=2650)
+
+                    icon = folium.Icon(color="red", icon="ok")
+                    marker = folium.Marker([data_list[0].latitude, data_list[0].longitude], popup=popup, icon=icon)
+                    marker.add_to(m)
+
+
                     basemap = True
 
                 folium.raster_layers.ImageOverlay(
-                    image = base_output_dir + "/" + directory +"/" + plot_name,
+                    image = base_output_dir + "/" + directory + "/pngs/" + plot_name,
                     bounds=[[min_lat, min_lon], [max_lat, max_lon]],
                 ).add_to(m)
+
+
+                
             except:
                 print(directory + " does not have this data output stored")
 
     return(m)
 
 def classify_output(start_monitor,end_monitor,breaks_plot,dates_array):
-    #plotting.py
+
+    '''
+    Classifies the indexes of the breaks per year
+    Returns a classified raster, the index of the first break of every year, and a list of years for plotting
+    '''
+    
     idx_starts = {}
 
     # this gives the index of all the data points in the year and after
@@ -111,6 +143,8 @@ def classify_output(start_monitor,end_monitor,breaks_plot,dates_array):
 
 def plot_output_matplotlib(idx_starts,breaks_plot_years, ticklist):
 
+    '''Creates a matplotlib plot of the breaks per year'''
+    
     bins = len(idx_starts)
 
     cmap = plt.get_cmap("Spectral")
@@ -140,6 +174,8 @@ def plot_output_matplotlib(idx_starts,breaks_plot_years, ticklist):
     
 def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif"):
     
+    '''Exports rasters as geotiffs'''
+    
     total_ncols = array.shape[1]
     total_nrows = array.shape[0]
         
@@ -166,10 +202,12 @@ def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif"):
     dst_ds.GetRasterBand(1).WriteArray(array)
     dst_ds.FlushCache()
     del dst_ds
-    print("saved in " + save_location + "/" + output_name)
+    print("Geotiff saved in " + save_location + "/" + output_name)
 
 def set_corners(output_dir, data_list):
 
+    '''Gets the latitude longitude corners around the tiles, and stores them in a json file for plotting the folium map'''
+    
     # set corners
     min_lat = data_list[0].latitude
     max_lat = data_list[0].latitude

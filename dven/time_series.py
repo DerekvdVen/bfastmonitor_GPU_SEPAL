@@ -134,11 +134,11 @@ class Timeseries:
         start_time = time.time()
         
         if not x_block_size:
-            x_block_size =  self.block_size[0]
+            x_block_size = self.gdal_recommended_block_size[0]
         else:
             self.x_block_size = x_block_size
         if not y_block_size:
-            y_block_size = self.block_size[1]
+            y_block_size = self.gdal_recommended_block_size[1]
         else:
             self.y_block_size = y_block_size
         
@@ -339,6 +339,8 @@ class Timeseries:
     
     def log_all_output(self,output_dir_name = 'stored_time_series/output'):
         
+        '''Logs the Timeseries output of the respective tile'''
+        
         if not os.path.exists(output_dir_name):
             os.makedirs(output_dir_name)
         if not os.path.exists(output_dir_name):
@@ -389,7 +391,7 @@ class Timeseries:
     
 
     def _find_index_date(dates, t):
-
+        '''Returns the index of the first date larger than t'''
         for i in range(len(dates)):
             if t < dates[i]:
                 return i

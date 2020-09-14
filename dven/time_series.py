@@ -155,7 +155,7 @@ class Timeseries:
         first_verstack=True
 
         # loop over yblocks
-        with tqdm(total=(self.ncols/x_block_size)*(self.nrows/y_block_size)) as pbar2:
+        with tqdm(total=round((self.ncols/x_block_size)*(self.nrows/y_block_size))) as pbar2:
             pbar2.set_description("Processing blocks of tile:")
                     
                 

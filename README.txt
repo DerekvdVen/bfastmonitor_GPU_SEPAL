@@ -6,7 +6,7 @@ NOTEBOOKS
 - bfast_from_sepal-OOP.ipynb
     This is the main script for running over SEPAL time series tile directories. 
     
-- bfastmonitor_stack.ipynb
+- bfastmonitor_stack.ipynb ### NOT YET FUNCTIONAL ###
     If you want to run over a big data set in one go, you may run this code on a timeseries data set.
     
 PYTHON FUNCTIONS

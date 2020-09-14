@@ -22,13 +22,13 @@ PYTHON FROM TERMINAL
     
 PYTHON FUNCTIONS
 - functions.py
-    Contains general functions used in the notebooks.
+    Contains general functions.
 
 - plotting_funcs.py
-    Contains functions for plotting used in the notebooks.
+    Contains functions for plotting.
     
 - time_series.py
-    Contains the Timeseries Class used in the notebooks.
+    Contains the Timeseries Class.
     
 - widgets.py
     Contains the ipy widgets used in the notebooks. 

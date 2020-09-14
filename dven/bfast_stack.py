@@ -48,6 +48,8 @@ args = parser.parse_args()
 
 base_output_dir = args.o
 timeseries_directory = args.t
+if not timeseries_directory:
+    raise Exception("Make sure to select your timeseries_directory with -t ../../downloads/[time_series], or -t home/yourusername/downloads/[time_series]")
 
 # set path to dates file
 run_dict = {}

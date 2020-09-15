@@ -390,7 +390,7 @@ class Timeseries:
         self.breaks_array = np.load(load_breaks_name)
     
 
-    def _find_index_date(dates, t):
+    def _find_index_date(self, dates, t):
         '''Returns the index of the first date larger than t'''
         for i in range(len(dates)):
             if t < dates[i]:
@@ -428,6 +428,9 @@ class Timeseries:
             period are contained in the returned
             objects.
         """
+        
+        from functions import _find_index_date
+        print("derp")
         start = self.start_hist
         end = self.end_monitor
         

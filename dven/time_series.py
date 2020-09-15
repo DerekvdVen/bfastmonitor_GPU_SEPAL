@@ -430,7 +430,6 @@ class Timeseries:
         """
         
         from functions import _find_index_date
-        print("derp")
         start = self.start_hist
         end = self.end_monitor
         

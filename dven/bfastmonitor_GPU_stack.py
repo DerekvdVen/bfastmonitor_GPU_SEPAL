@@ -136,11 +136,36 @@ for data_list in run_dict:
                                 y_block_size = y_block)
 
             tile.log_all_output(output_dir_name=save_location)
-
+            
+            # delete tile from memory and replace with a placeholder zero to keep the list at same length 
+            run_dict[data_list][counter] = '0'
+            del(tile)
+            
             pbar1.update(counter)
 
     pbar1.close()
 
+# load in all npy tiles
+run_dict = {}
+for directory in os.listdir(timeseries_directory):
+    
+    segment_location = timeseries_directory + directory + "/"
+    dates_location =  timeseries_directory + directory + "/dates.csv"
+    
+    data_list = set_paths(timeseries_directory = segment_location)
+    
+    run_dict[directory] = data_list
+    
+    for tile in data_list:
+        print(tile)
+        
+        tile.start_monitor, tile.end_monitor = monitoring_period_chooser.result
+        tile.start_hist = history_period_chooser.result
+        
+        tile.crop_dates(tile.dates)
+        tile.load_breaks_means_arrays_from_file(output_dir_name =base_output_dir + "/" +  directory)
+    
+    
 for data_list in run_dict:
     save_location = base_output_dir + "/" + data_list
     tiles_data = run_dict[data_list]

@@ -41,8 +41,11 @@ def set_output_dir(chooser, timeseries_dir):
     Takes an ipywidget chooser and the timeseries directory as input.
     Creates output directories based on which timeseries directory you are in, and returns it
     '''
-    
-    save_location = "stored_time_series/" +  chooser.result + "/" + chooser.result + '_' + timeseries_dir[-2]
+    if not chooser.result:
+        save_location = "stored_time_series/output/output_" + timeseries_dir[-2]
+    else:    
+        save_location = "stored_time_series/" +  chooser.result + "/" + chooser.result + '_' + timeseries_dir[-2]
+        
     if not os.path.exists(save_location):
             os.makedirs(save_location)
     return(save_location)

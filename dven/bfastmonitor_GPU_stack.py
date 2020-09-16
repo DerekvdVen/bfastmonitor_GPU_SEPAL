@@ -87,7 +87,7 @@ backend = str(input("choose opencl or python (default = opencl): ") or 'opencl')
 verbose = 1
 device_id = 0
 
-x_block = y_block = int(input("choose block size 128, 256, 512, 1028 (default = 128): ") or 128)
+x_block = y_block = int(input("choose block size 128, 256, 512, 1024 (default = 128): ") or 128)
 
 start_monitor = datetime.strptime(start_monitor, "%Y-%m-%d") 
 end_monitor = datetime.strptime(end_monitor, "%Y-%m-%d") 

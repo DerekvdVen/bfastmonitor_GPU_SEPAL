@@ -141,9 +141,7 @@ class Timeseries:
             y_block_size = self.gdal_recommended_block_size[1]
         else:
             self.y_block_size = y_block_size
-        
-        #x_block_size = self.block_size[0]
-        #y_block_size = self.block_size[1]
+
         print("rastersize: ",self.ncols,self.nrows)
         print("The natural block size is the block size that is most efficient for accessing the format, gdal found blocksize: ",self.gdal_recommended_block_size)
         print("set blocksize explicitly: ",x_block_size,", " ,y_block_size)
@@ -183,9 +181,7 @@ class Timeseries:
                     pbar2.update(1)
                     
                     if first_horstack==True:
-                        data = self.time_series.ReadAsArray(j, i, cols, rows)#.astype("int16")
-                        #data = data*10000
-                        data=data.astype("int16")
+                        data = self.time_series.ReadAsArray(j, i, cols, rows).astype("int16")
                         breaks,means = self.run_bfast(data)
                         breaks_array = breaks
                         means_array = means
@@ -193,9 +189,7 @@ class Timeseries:
 
                     # after that add to array
                     else:                    
-                        data = self.time_series.ReadAsArray(j, i, cols, rows)#.astype("int16")
-                        #data = data*10000
-                        data=data.astype("int16")
+                        data = self.time_series.ReadAsArray(j, i, cols, rows).astype("int16")
                         breaks,means = self.run_bfast(data)
                         breaks_array = np.concatenate((breaks_array,breaks),axis = 1)
                         means_array = np.concatenate((means_array,means),axis = 1)

@@ -46,7 +46,7 @@ parser.add_argument('-o', default="output", type=str, help='output name')
 parser.add_argument('-t', default= None, type = str, help='where your timeseries is located')
 args = parser.parse_args()
 
-base_output_dir = args.o
+base_output_dir = "stored_time_series/" + args.o
 timeseries_directory = args.t
 if not timeseries_directory:
     raise Exception("Make sure to select your timeseries_directory with -t ../../downloads/[time_series], or -t home/yourusername/downloads/[time_series]")
@@ -74,33 +74,24 @@ end_date = dates[-1].date()
 print("\n ### \n\nfill in dates,you must choose dates between: ", start_date, " and ", end_date, "\n")
 
 start_monitor = str(input("start monitoring period yyyy-mm-dd: ")) #"2016-09-02"
-
 end_monitor = str(input("end monitoring period yyyy-mm-dd, press enter to run till most recent data ") or end_date) #"2020-08-27"
-
 start_history = str(input("start history period yyyy-mm-dd, press enter to use all data ") or start_date) #"2012-01-1"
 
 print("\n ### \n\n Give parameter input, press enter to resort to standard parameter. \n")
-k = int(input("k, 1,2,3,4,5: ") or 3)
-freq = int(input("frequency of seasonal model in days: ") or 365)
-trend = bool(input("set trend True or False: ") or False)
-hfrac =float(input("Bandwidth relative to sample size: ") or 0.25)
-level = float(input("Level of significance 0.001 - 0.05: ") or 1-0.95)
-backend = str(input("choose opencl or python: ") or 'opencl')
+k = int(input("set k, harmonic term, choose 1,2,3,4,5 (default = 3):  ") or 3)
+freq = int(input("set frequency of seasonal model in days (default = 365): ") or 365)
+trend = bool(input("set trend True or False (default = False): ") or False)
+hfrac =float(input(" set bandwidth relative to sample size (default = 0.25): ") or 0.25)
+level = float(input("set level of significance 0.001 - 0.05 (default = 0.05): ") or 1-0.95)
+backend = str(input("choose opencl or python (default = opencl): ") or 'opencl')
 verbose = 1
 device_id = 0
 
-x_block = y_block = int(input("choose block size 128, 256, 512, 1028: ") or 128)
-
-print(start_date)
-print(end_date)
+x_block = y_block = int(input("choose block size 128, 256, 512, 1028 (default = 128): ") or 128)
 
 start_monitor = datetime.strptime(start_monitor, "%Y-%m-%d") 
 end_monitor = datetime.strptime(end_monitor, "%Y-%m-%d") 
 start_hist = datetime.strptime(start_history, "%Y-%m-%d") 
-
-
-
-
 
 
 

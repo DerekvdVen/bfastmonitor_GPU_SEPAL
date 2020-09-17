@@ -45,6 +45,20 @@ parser = argparse.ArgumentParser(description='set dirs')
 parser.add_argument('-o', default="output", type=str, help='output name')
 parser.add_argument('-t', default= None, type = str, help='where your timeseries is located')
 
+parser.add_argument('-k', default= 3, type=int, help='harmonic term')
+parser.add_argument('-f', default= 365, type = int, help='frequency of seasonal model in days')
+
+parser.add_argument('-tr', default= False, type=bool, help='add trend')
+parser.add_argument('-hfrac', default= 0.25, type = float, help='bandwidth relative to sample size')
+
+parser.add_argument('-l', default= 0.05, type=float, help='level of significance 0.001 - 0.05')
+parser.add_argument('-b', default= 'opencl', type = str, help='opencl or python')
+
+parser.add_argument('-bs', default = 512, type = int, help='block size for running bfast over')
+
+parser.add_argument('-start_m', default= None, type= str, help='date start_monitor')
+parser.add_argument('-end_m', default= None, type = str, help='date end monitor')
+parser.add_argument('-start_h', default= None, type = str, help='date start history')
 args = parser.parse_args()
 
 base_output_dir = "stored_time_series/" + args.o
@@ -74,21 +88,21 @@ end_date = dates[-1].date()
 
 print("\n ### \n\nfill in dates,you must choose dates between: ", start_date, " and ", end_date, "\n")
 
-start_monitor = str(input("start monitoring period yyyy-mm-dd: ")) #"2016-09-02"
-end_monitor = str(input("end monitoring period yyyy-mm-dd, press enter to run till most recent data ") or end_date) #"2020-08-27"
-start_history = str(input("start history period yyyy-mm-dd, press enter to use all data ") or start_date) #"2012-01-1"
+start_monitor = str(args.start_m) #"2016-09-02"
+end_monitor = str(args.end_m or end_date) #"2020-08-27"
+start_history = str(args.start_h or start_date) #"2012-01-1"
 
 #print("\n ### \n\n Give parameter input, press enter to resort to standard parameter. \n")
-k = int(input("set k, harmonic term, choose 1,2,3,4,5 (default = 3):  ") or 3)
-freq = int(input("set frequency of seasonal model in days (default = 365): ") or 365)
-trend = bool(input("set trend True or False (default = False): ") or False)
-hfrac =float(input(" set bandwidth relative to sample size (default = 0.25): ") or 0.25)
-level = float(input("set level of significance 0.001 - 0.05 (default = 0.05): ") or 1-0.95)
-backend = str(input("choose opencl or python (default = opencl): ") or 'opencl')
+k = int(args.k or 3)
+freq = int(args.f or 365)
+trend = bool(args.tr or False)
+hfrac =float(args.hfrac or 0.25)
+level = float(args.l or 1-0.95)
+backend = str(args.b or 'opencl')
 verbose = 1
 device_id = 0
 
-x_block = y_block = int(input("choose block size 128, 256, 512, 1024 (default = 128): ") or 512)
+x_block = y_block = int(args.bs or 512)
 
 start_monitor = datetime.strptime(start_monitor, "%Y-%m-%d") 
 end_monitor = datetime.strptime(end_monitor, "%Y-%m-%d") 

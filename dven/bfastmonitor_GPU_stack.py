@@ -31,7 +31,7 @@ from matplotlib import cm
 
 # import functions from functions.py
 from functions import set_base_output_dir, set_output_dir, get_data_dict, merge_tiles, set_paths, _find_index_date, normalize, select_negatives, get_julian_dates
-from plotting_funcs import save_plot, merge_plots, classify_output, plot_output_matplotlib, set_corners, export_GTiff
+from plotting_funcs import save_plot, merge_plots, classify_output, plot_output_matplotlib, set_corners, export_GTiff, classify_magnitudes
 
 # Import the Timeseries class from time_series.py
 from time_series import Timeseries
@@ -173,6 +173,11 @@ for data_list in run_dict:
     
     save_plot(means_orig, save_location, save_name = "all_magnitudes")
     export_GTiff(tiles_data, output_dir = save_location, array = means_orig, output_name = "magnitudes_" + timeseries_directory[-2] + ".tif")
+    
+    
+    classified_means = classify_magnitudes(means_orig)
+    export_GTiff(tiles_data, output_dir = save_location, array = classified_means, output_name = "magnitudes_classified" + data_list + ".tif")
+    
     
     # select only negative magnitudes
     means_neg, breaks_indexed, breaks_indexed_neg, binary_breaks, negative_binary_breaks = select_negatives(means_orig, breaks_orig)

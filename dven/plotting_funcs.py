@@ -236,3 +236,26 @@ def set_corners(output_dir, data_list):
         json.dump(corner_dict, f)
     print("saved in " + output_dir + "/" + "corners.json")
      
+def classify_magnitudes(means_orig):
+    meanv = np.nanmean(means_orig)
+    stdev = np.nanstd(means_orig)
+    maxv = np.nanmax(means_orig)
+    minv = np.nanmin(means_orig)
+    print("mean: ", meanv)
+    print("stdev: ", stdev)
+    print("max value: ", maxv)
+    print("min value: ", minv)
+
+    classified_means = copy.deepcopy(means_orig)
+    classified_means[(means_orig >= meanv) & (means_orig < meanv + stdev)] = 5
+    classified_means[(means_orig >= meanv + stdev) & (means_orig < meanv + 2*stdev)] = 6
+    classified_means[(means_orig >= meanv + 2*stdev) & (means_orig < meanv + 3*stdev)] = 7
+    classified_means[(means_orig >= meanv + 3*stdev) & (means_orig < meanv + 4*stdev)] = 8
+    classified_means[(means_orig >= meanv + 4*stdev) & (means_orig < maxv)] = 9
+
+    classified_means[(means_orig >= meanv - stdev) & (means_orig < meanv)] = 1
+    classified_means[(means_orig >= meanv - 2*stdev) & (means_orig < meanv - stdev)] = 2
+    classified_means[(means_orig >= meanv - 3*stdev) & (means_orig < meanv - 2*stdev)] = 3
+    classified_means[(means_orig >= meanv - 4*stdev) & (means_orig < meanv - 3*stdev)] = 4
+    classified_means[(means_orig >= minv) & (means_orig < meanv - 4*stdev)] = 5
+    return classified_means

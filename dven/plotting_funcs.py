@@ -172,7 +172,7 @@ def plot_output_matplotlib(idx_starts,breaks_plot_years, ticklist):
     plt.show()
     
     
-def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif"):
+def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif",classify=False):
     
     '''Exports rasters as geotiffs'''
     
@@ -199,9 +199,32 @@ def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif"):
 
     dst_ds.SetGeoTransform(geotransform)
     dst_ds.SetProjection(projection)
-    dst_ds.GetRasterBand(1).WriteArray(array)
+    
+    band = dst_ds.GetRasterBand(1)
+    # maybe you need to run the band.set xxx after writing the array
+    band.WriteArray(array)
+    
+    if classify==True:
+        colors = gdal.ColorTable()
+        #colors = band.GetRasterColorTable()
+        colors.SetColorEntry(1, (245, 245, 220))
+        colors.SetColorEntry(2, (255, 255, 0))
+        colors.SetColorEntry(3, (255, 165, 0))
+        colors.SetColorEntry(4, (255, 0, 0))
+        colors.SetColorEntry(5, (139, 0, 0))
+        colors.SetColorEntry(6, (152, 251, 152))
+        colors.SetColorEntry(7, (0, 238, 0))
+        colors.SetColorEntry(8, (34, 139, 34))
+        colors.SetColorEntry(9, (0, 100, 0))
+        colors.SetColorEntry(0, (0, 0, 0))
+
+        band.SetRasterColorTable(colors)
+        band.SetRasterColorInterpretation(gdal.GCI_PaletteIndex)
+    
+    
+    
     dst_ds.FlushCache()
-    del dst_ds
+    del dst_ds, band
     print("Geotiff saved in " + save_location + "/" + output_name)
 
 def set_corners(output_dir, data_list):
@@ -247,15 +270,14 @@ def classify_magnitudes(means_orig):
     print("min value: ", minv)
 
     classified_means = copy.deepcopy(means_orig)
-    classified_means[(means_orig >= meanv) & (means_orig < meanv + stdev)] = 5
-    classified_means[(means_orig >= meanv + stdev) & (means_orig < meanv + 2*stdev)] = 6
-    classified_means[(means_orig >= meanv + 2*stdev) & (means_orig < meanv + 3*stdev)] = 7
-    classified_means[(means_orig >= meanv + 3*stdev) & (means_orig < meanv + 4*stdev)] = 8
-    classified_means[(means_orig >= meanv + 4*stdev) & (means_orig < maxv)] = 9
+    classified_means[(means_orig >= meanv + stdev) & (means_orig < meanv + 2*stdev)] = int(6)
+    classified_means[(means_orig >= meanv + 2*stdev) & (means_orig < meanv + 3*stdev)] = int(7)
+    classified_means[(means_orig >= meanv + 3*stdev) & (means_orig < meanv + 4*stdev)] = int(8)
+    classified_means[(means_orig >= meanv + 4*stdev) & (means_orig <= maxv)] = int(9)
 
-    classified_means[(means_orig >= meanv - stdev) & (means_orig < meanv)] = 1
-    classified_means[(means_orig >= meanv - 2*stdev) & (means_orig < meanv - stdev)] = 2
-    classified_means[(means_orig >= meanv - 3*stdev) & (means_orig < meanv - 2*stdev)] = 3
-    classified_means[(means_orig >= meanv - 4*stdev) & (means_orig < meanv - 3*stdev)] = 4
-    classified_means[(means_orig >= minv) & (means_orig < meanv - 4*stdev)] = 5
+    classified_means[(means_orig >= meanv - stdev) & (means_orig < meanv + stdev)] = int(1)
+    classified_means[(means_orig >= meanv - 2*stdev) & (means_orig < meanv - stdev)] = int(2)
+    classified_means[(means_orig >= meanv - 3*stdev) & (means_orig < meanv - 2*stdev)] = int(3)
+    classified_means[(means_orig >= meanv - 4*stdev) & (means_orig < meanv - 3*stdev)] = int(4)
+    classified_means[(means_orig >= minv) & (means_orig < meanv - 4*stdev)] = int(5)
     return classified_means

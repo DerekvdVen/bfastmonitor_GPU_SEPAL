@@ -329,6 +329,7 @@ class Timeseries:
 
         if perc_lacking_data > min_perc_lacking_data:
             return(warnings.warn("Warning: More than {} percent of the pixels in this tile lack sufficient data, resulting in NaNs. Consider selecting a longer monitoring period or a larger area.".format(min_perc_lacking_data)))
+        
     
     
     def log_all_output(self,output_dir_name = 'stored_time_series/output'):

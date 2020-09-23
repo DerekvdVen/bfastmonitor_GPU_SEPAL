@@ -194,13 +194,14 @@ def get_julian_dates(dates_array, breaks_array):
 
 def select_negatives(means,breaks):
     no_breaks_indices = (breaks == -1) # no -2 used by fabian
+    no_break_lacking_data_indices = (breaks == -2) 
     means[no_breaks_indices] = np.nan
+    means[no_break_lacking_data_indices] = np.nan
     means[means > 0] = 0 # only want negative mean changes
 
     breaks = breaks.astype(np.float)
     breaks[breaks == -2] = np.nan
     breaks[breaks == -1] = np.nan
-    
     
     binary_breaks = np.invert(np.isnan(breaks))
     breaks_neg = copy.deepcopy(breaks)

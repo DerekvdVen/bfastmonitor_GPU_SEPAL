@@ -8,7 +8,7 @@ NOTEBOOKS
 - bfastmonitor_GPU.ipynb
     This is a script for running over SEPAL time series tile directories within a time-series folder. 
     
-PYTHON FROM TERMINAL
+FROM TERMINAL
 - bfastmonitor_GPU_stack.py -o [output_dir] -t [timeseries_dir]
     You can run bfast_stack.py from the terminal, the terminal will prompt the user for parameters.
         example: python3 bfast_stack.py -o Guyana -t ../../downloads/Time_series_2020-09-09_13-02-40/
@@ -46,7 +46,7 @@ The scripts provide the following tif outputs
 - magnitudes_negative
     Negative means of MOSUM process (deviation between model and data) floats.
 - magnitudes_classified
-    Means of MOSUM process classified into 10 classes -999 (no data),1,2,3,4,5,6,7,8,9
+    Means of MOSUM process classified into 10 classes -999(no data), 1,2,3,4,5,6,7,8,9
 
 
     # 1 = no change (mean +/- 1 standard deviation)

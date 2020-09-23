@@ -71,7 +71,7 @@ def get_widgets():
     block_size_chooser = widgets.interactive(g, 
         i=widgets.Dropdown(
             options=[128,256,512,1024],
-            value=256,
+            value=512,
             description='block size, bigger is generally faster, but may result in memory issues',
             style = style, layout = layout,))
     

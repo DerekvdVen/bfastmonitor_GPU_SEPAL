@@ -88,7 +88,7 @@ backend = str(input("choose opencl or python (default = opencl): ") or 'opencl')
 verbose = 1
 device_id = 0
 
-x_block = y_block = int(input("choose block size 128, 256, 512, 1024 (default = 128): ") or 512)
+x_block = y_block = int(input("choose block size 128, 256, 512, 1024 (default = 512): ") or 512)
 
 start_monitor = datetime.strptime(start_monitor, "%Y-%m-%d") 
 end_monitor = datetime.strptime(end_monitor, "%Y-%m-%d") 
@@ -151,8 +151,9 @@ for directory in os.listdir(timeseries_directory):
     for tile in data_list:
         print(tile)
         
-        tile.start_monitor, tile.end_monitor = monitoring_period_chooser.result
-        tile.start_hist = history_period_chooser.result
+        tile.start_monitor = start_monitor 
+        tile.end_monitor = end_monitor
+        tile.start_hist = start_hist
         
         tile.crop_dates(tile.dates)
         tile.load_breaks_means_arrays_from_file(output_dir_name =base_output_dir + "/" +  directory)

@@ -165,8 +165,11 @@ for directory in os.listdir(timeseries_directory):
     for tile in data_list:
         print(tile)
         
-        tile.start_monitor, tile.end_monitor = monitoring_period_chooser.result
-        tile.start_hist = history_period_chooser.result
+        
+        tile.start_monitor = start_monitor
+        tile.end_monitor = end_monitor
+        tile.start_hist = start_hist
+        
         
         tile.crop_dates(tile.dates)
         tile.load_breaks_means_arrays_from_file(output_dir_name =base_output_dir + "/" +  directory)

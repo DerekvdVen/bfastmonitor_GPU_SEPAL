@@ -14,8 +14,11 @@ PYTHON FROM TERMINAL
         example: python3 bfast_stack.py -o Guyana -t ../../downloads/Time_series_2020-09-09_13-02-40/
         example: python3 bfast_stack.py -o Australia -t /home/dven/downloads/Time_series_2020-09-09_13-02-40/
 - bfastmonitor_GPU_array.sh
-    If you want to run bfastmonitor-GPU over folders in different folder locations, do multiple runs to test parameters etc. you may use this bash script. It calls bfastmonitor_GPU_stack.py using parameters in bash arrays. 
-    
+    If you want to run bfastmonitor-GPU over folders in different folder locations, do multiple runs to test parameters etc. you may use this bash script. It calls bfastmonitor_GPU_stack_bash.py using parameters in bash arrays. 
+- bfastmonitor_GPU_stack_bash.py
+    Is called by bfastmonitor_GPU_array.sh.
+
+
 PYTHON FUNCTIONS
 - functions.py
     Contains general functions.

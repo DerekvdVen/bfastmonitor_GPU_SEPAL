@@ -164,7 +164,7 @@ for data_list in run_dict:
     tiles_data = run_dict[data_list]
     
     for tile in tiles_data:
-        tile.check_arrays(min_perc_lacking_data = 50)
+        tile.check_arrays(min_perc_lacking_data = 50,print_output=True)
     
     if len(tiles_data) > 1:
         means_orig, breaks_orig = merge_tiles(tiles_data,output_dir_name = save_location)

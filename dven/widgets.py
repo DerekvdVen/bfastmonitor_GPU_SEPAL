@@ -77,8 +77,8 @@ def get_widgets():
     
     plot_display_data_chooser = widgets.interactive(g, 
         i=widgets.Dropdown(
-            options=['all_negative_magnitudes','all_magnitudes'],
-            value='all_negative_magnitudes',
+            options=['magnitudes','magnitudes_negative'],
+            value='magnitudes',
             description='data to plot',
             style = style, layout = layout,))
     

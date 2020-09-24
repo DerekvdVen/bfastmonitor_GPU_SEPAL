@@ -308,7 +308,7 @@ class Timeseries:
         print("verbose: The verbosity level (0=no output, 1=output): ", self.verbose)
         
     
-    def check_arrays(self, min_perc_lacking_data = 20):
+    def check_arrays(self, min_perc_lacking_data = 20,print_output=False):
         '''
         Checks the means and breaks arrays for amount of breaks, and means values. 
         '''
@@ -316,20 +316,22 @@ class Timeseries:
         minus2count = np.count_nonzero(self.breaks_array == -2) # not enough data for output
         total_count = self.nrows*self.ncols
         
-        print("minus2s: ", minus2count)
-        print("minus1s: ", minus1count)
-        print("total", total_count)
-        
+        if print_output:
+            print("minus2s: ", minus2count)
+            print("minus1s: ", minus1count)
+            print("total", total_count)
+
         perc_lacking_data = minus2count/total_count*100
         perc_breaks = (total_count - (minus1count + minus2count))/total_count * 100
-        
-        print("percentage cells that lacked enough data for finding means or breaks: " + str(perc_lacking_data))
-        print("percentage cells where breaks were found: " + str(perc_breaks))
-        print("amount of nans in means: ", np.count_nonzero(np.isnan(self.means_array)))
+        #nans_in_means = np.count_nonzero(np.isnan(self.means_array))
+        if print_output:
+            print("percentage cells that lacked enough data for finding means or breaks: " + str(perc_lacking_data))
+            print("percentage cells where breaks were found: " + str(perc_breaks))
+            #print("amount of nans in means: ", nans_in_means)
 
         if perc_lacking_data > min_perc_lacking_data:
             return(warnings.warn("Warning: More than {} percent of the pixels in this tile lack sufficient data, resulting in NaNs. Consider selecting a longer monitoring period or a larger area.".format(min_perc_lacking_data)))
-        
+        return(minus2count,minus1count,perc_lacking_data,perc_breaks)
     
     
     def log_all_output(self,output_dir_name = 'stored_time_series/output'):
@@ -365,7 +367,7 @@ class Timeseries:
         except:
             print("No arrays are currently loaded")
     
-    def load_breaks_means_arrays_from_file(self, output_dir_name = 'stored_time_series/output'):
+    def load_breaks_means_arrays_from_file(self, output_dir_name = 'stored_time_series/output',print_output = False):
         '''
         Loads the locally saved means and breaks arrays from log_breaks_means_arrays() method
         '''
@@ -378,9 +380,10 @@ class Timeseries:
         load_means_name = output_dir_name + '/' + tile_name + "_means.npy"
         load_breaks_name = output_dir_name + '/' + tile_name + "_breaks.npy"
         
-        print(load_means_name)
-        print(load_breaks_name)
-        
+        if print_output:
+            print(load_means_name)
+            print(load_breaks_name)
+
         self.means_array = np.load(load_means_name)
         self.breaks_array = np.load(load_breaks_name)
     

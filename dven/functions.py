@@ -42,9 +42,9 @@ def set_output_dir(chooser, timeseries_dir):
     Creates output directories based on which timeseries directory you are in, and returns it
     '''
     if not chooser.result:
-        save_location = "stored_time_series/output/output_" + timeseries_dir[-2]
+        save_location = "stored_time_series/output/" + timeseries_dir[-2]
     else:    
-        save_location = "stored_time_series/" +  chooser.result + "/" + chooser.result + '_' + timeseries_dir[-2]
+        save_location = "stored_time_series/" +  chooser.result + "/" + timeseries_dir[-2]
         
     if not os.path.exists(save_location):
             os.makedirs(save_location)
@@ -163,8 +163,8 @@ def merge_tiles(tile_list, output_dir_name = 'my_data'):
     if not os.path.exists(save_location):
         os.makedirs(save_location)
     
-    save_means_dir = save_location + "/all_magnitudes.npy"
-    save_breaks_dir = save_location + "/all_breaks.npy"
+    save_means_dir = save_location + "/magnitudes.npy"
+    save_breaks_dir = save_location + "/breaks.npy"
     print(save_means_dir)
     print(save_breaks_dir)
     np.save(save_means_dir, big_means_array)

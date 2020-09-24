@@ -5,10 +5,9 @@ import json
 
 import folium
 from folium.plugins import FloatImage
-import base64
-from folium import IFrame
-
 from osgeo import gdal
+from folium import plugins
+
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -281,3 +280,50 @@ def classify_magnitudes(means_orig):
     classified_means[(means_orig >= meanv - 4*stdev) & (means_orig < meanv - 3*stdev)] = int(4)
     classified_means[(means_orig >= minv) & (means_orig < meanv - 4*stdev)] = int(5)
     return classified_means
+
+def merge_plots2(data_list, base_output_dir = "output", plot_name = "magnitudes"):
+
+    '''Looks for plot name in all timeseries directories in the base_output_dir, so as to plot the entire AOI as a Folium map'''
+    
+    basemap = False
+    for directory in os.listdir(base_output_dir):
+        if not directory.startswith('.'):
+            try:
+                print(directory)
+                print(base_output_dir + "/" + directory + "/pngs/" + plot_name + "_" + directory + ".png")
+
+
+                #Open raster file
+                driver=gdal.GetDriverByName('GTiff')
+                driver.Register() 
+                ds = gdal.Open(base_output_dir + "/" + directory + "/geotifs/" + plot_name+ "_" + directory  + '.tif')
+                if ds is None:
+                    print('Could not open')
+                
+                #Get coordinates, cols and rows
+                geotransform = ds.GetGeoTransform()
+                cols = ds.RasterXSize 
+                rows = ds.RasterYSize 
+
+                #Get extent
+                xmin=geotransform[0]
+                ymax=geotransform[3]
+                xmax=xmin+cols*geotransform[1]
+                ymin=ymax+rows*geotransform[5]
+                #Get Central point
+                centerx=(xmin+xmax)/2
+                centery=(ymin+ymax)/2
+
+                if basemap == False:
+                    map= folium.Map(location=[centery, centerx], zoom_start=7,tiles='Stamen Terrain')
+                    basemap = True
+                
+                folium.raster_layers.ImageOverlay(
+                    image=base_output_dir + "/" + directory + "/pngs/" + plot_name + "_" + directory + ".png",
+                    bounds=[[ymin, xmin], [ymax, xmax]],
+                    #colormap=lambda x: (1, 0, x, x),#R,G,B,alpha
+                ).add_to(map)
+            except:
+                print(directory + " does not have this data output stored")
+
+    return(map)

@@ -180,8 +180,15 @@ for data_list in run_dict:
     save_location = base_output_dir + "/" + data_list
     tiles_data = run_dict[data_list]
     
+    
+    perc_lacking_data_sum, perc_breaks_sum= 0,0
     for tile in tiles_data:
-        tile.check_arrays(min_perc_lacking_data = 50,print_output=True)
+        minus2count,minus1count,perc_lacking_data,perc_breaks = tile.check_arrays()
+        perc_breaks_sum += perc_breaks
+        perc_lacking_data_sum+= perc_lacking_data
+        
+    print("percentage breaks found", perc_breaks_sum/len(tiles_data))
+    print("percentage cells lacking data to find results found", perc_lacking_data_sum/len(tiles_data))
     
     if len(tiles_data) > 1:
         means_orig, breaks_orig = merge_tiles(tiles_data,output_dir_name = save_location)
@@ -195,6 +202,7 @@ for data_list in run_dict:
     
     
     classified_means = classify_magnitudes(means_orig)
+    classified_means = np.nan_to_num(classified_means,nan=0).astype("uint16")
     export_GTiff(tiles_data, output_dir = save_location, array = classified_means, output_name = "magnitudes_classified_" +  data_list + ".tif")
     
     # add colors to classified raster

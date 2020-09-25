@@ -87,8 +87,6 @@ dates = data_list[0].dates
 start_date = dates[0].date()
 end_date = dates[-1].date()
 
-print("\n ### \n\nfill in dates,you must choose dates between: ", start_date, " and ", end_date, "\n")
-
 start_monitor = str(args.start_m) #"2016-09-02"
 end_monitor = str(args.end_m or end_date) #"2020-08-27"
 start_history = str(args.start_h or start_date) #"2012-01-1"

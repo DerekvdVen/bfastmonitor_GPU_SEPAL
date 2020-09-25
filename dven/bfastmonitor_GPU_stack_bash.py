@@ -8,6 +8,7 @@ import copy
 import matplotlib
 import matplotlib.pyplot as plt
 
+import subprocess
 import json
 
 from bfast import BFASTMonitor
@@ -196,6 +197,15 @@ for data_list in run_dict:
     classified_means = classify_magnitudes(means_orig)
     export_GTiff(tiles_data, output_dir = save_location, array = classified_means, output_name = "magnitudes_classified" +  timeseries_directory[-2] + ".tif")
     
+    # add colors to classified raster
+    func = "oft-addpct.py"
+    clas_tif = save_location + "/geotifs/magnitudes_classified_" + data_list + ".tif"
+    clas_tif_result = save_location + "/geotifs/magnitudes_classified_" + data_list + "_result.tif"
+    color_table = "color_table.txt"
+    
+    ps = subprocess.Popen(('echo', color_table), stdout=subprocess.PIPE)
+    output = subprocess.check_output((func, clas_tif, clas_tif_result), stdin=ps.stdout)
+    ps.wait()
     
     # select only negative magnitudes
     means_neg, breaks_indexed, breaks_indexed_neg, binary_breaks, negative_binary_breaks = select_negatives(means_orig, breaks_orig)

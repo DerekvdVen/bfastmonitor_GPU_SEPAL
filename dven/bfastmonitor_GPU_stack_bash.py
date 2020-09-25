@@ -190,12 +190,12 @@ for data_list in run_dict:
         breaks_orig = tiles_data[0].breaks_array
     
     save_plot(means_orig, save_location, save_name = "all_magnitudes")
-    export_GTiff(tiles_data, output_dir = save_location, array = means_orig, output_name = "magnitudes_" + timeseries_directory[-2] + ".tif")
-    export_GTiff(tiles_data, output_dir = save_location, array = breaks_orig, output_name = "breaks_indexed_" +  timeseries_directory[-2] + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = means_orig, output_name = "magnitudes_" + data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = breaks_orig, output_name = "breaks_indexed_" +  data_list + ".tif")
     
     
     classified_means = classify_magnitudes(means_orig)
-    export_GTiff(tiles_data, output_dir = save_location, array = classified_means, output_name = "magnitudes_classified" +  timeseries_directory[-2] + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = classified_means, output_name = "magnitudes_classified_" +  data_list + ".tif")
     
     # add colors to classified raster
     func = "oft-addpct.py"

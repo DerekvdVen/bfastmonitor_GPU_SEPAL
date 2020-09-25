@@ -4,7 +4,7 @@ output_array=(test1 test2)                              # minimum confidence for
 
 # Essential parameters
 o="MyCountry2"
-t="/home/dven/downloads/Time_series_2020-09-14_13-57-37_Jamaica/"
+t="/home/dven/downloads/Time_series_2020-09-09_13-02-40_Australia_small/"
 start_monitor="2015-01-01"
 end_monitor="2020-01-01"
 start_history="2012-01-01"

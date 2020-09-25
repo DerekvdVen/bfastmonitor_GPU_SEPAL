@@ -8,6 +8,7 @@ import copy
 import matplotlib
 import matplotlib.pyplot as plt
 
+import subprocess
 import json
 
 from bfast import BFASTMonitor
@@ -163,8 +164,14 @@ for data_list in run_dict:
     save_location = base_output_dir + "/" + data_list
     tiles_data = run_dict[data_list]
     
+    perc_lacking_data_sum, perc_breaks_sum= 0,0
     for tile in tiles_data:
-        tile.check_arrays(min_perc_lacking_data = 50,print_output=True)
+        minus2count,minus1count,perc_lacking_data,perc_breaks = tile.check_arrays()
+        perc_breaks_sum += perc_breaks
+        perc_lacking_data_sum+= perc_lacking_data
+        
+    print("percentage breaks found", perc_breaks_sum/len(tiles_data))
+    print("percentage cells lacking data to find results found", perc_lacking_data_sum/len(tiles_data))
     
     if len(tiles_data) > 1:
         means_orig, breaks_orig = merge_tiles(tiles_data,output_dir_name = save_location)
@@ -173,12 +180,23 @@ for data_list in run_dict:
         breaks_orig = tiles_data[0].breaks_array
     
     save_plot(means_orig, save_location, save_name = "all_magnitudes")
-    export_GTiff(tiles_data, output_dir = save_location, array = means_orig, output_name = "magnitudes_" + timeseries_directory[-2] + ".tif")
-    export_GTiff(tiles_data, output_dir = save_location, array = breaks_orig, output_name = "breaks_indexed_" + timeseries_directory[-2] + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = means_orig, output_name = "magnitudes_" + data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = breaks_orig, output_name = "breaks_indexed_" + data_list + ".tif")
     
     
     classified_means = classify_magnitudes(means_orig)
-    export_GTiff(tiles_data, output_dir = save_location, array = classified_means, output_name = "magnitudes_classified" +  timeseries_directory[-2] + ".tif")
+    classified_means = np.nan_to_num(classified_means,nan=0).astype("uint16")
+    export_GTiff(tiles_data, output_dir = save_location, array = classified_means, output_name = "magnitudes_classified_" + data_list + ".tif")
+    
+    # add colors to classified raster
+    func = "oft-addpct.py"
+    clas_tif = save_location + "/geotifs/magnitudes_classified_" + data_list + ".tif"
+    clas_tif_result = save_location + "/geotifs/magnitudes_classified_" + data_list + "_result.tif"
+    color_table = "color_table.txt"
+    
+    ps = subprocess.Popen(('echo', color_table), stdout=subprocess.PIPE)
+    output = subprocess.check_output((func, clas_tif, clas_tif_result), stdin=ps.stdout)
+    ps.wait()
     
     
     # select only negative magnitudes

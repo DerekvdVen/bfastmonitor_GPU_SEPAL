@@ -45,8 +45,8 @@ The scripts provide the following tif outputs
     All means of MOSUM process (deviation between model and data) floats.
 - magnitudes_negative
     Negative means of MOSUM process (deviation between model and data) floats.
-- magnitudes_classified
-    Means of MOSUM process classified into 10 classes -999(no data), 1,2,3,4,5,6,7,8,9
+- magnitudes_classified_result
+    COLORED Means of MOSUM process classified into 10 classes -999(no data), 1,2,3,4,5,6,7,8,9
 
 
     # 1 = no change (mean +/- 1 standard deviation)
@@ -58,3 +58,6 @@ The scripts provide the following tif outputs
     # 7 = postive medium magnitude change      (mean + 3 standard deviations)
     # 8 = postive large magnitude change       (mean + 4 standard deviations)
     # 9 = postive very large magnitude change  (mean + 4+ standard deviations)
+
+- magnitudes_classified
+    Same as above, but not colored

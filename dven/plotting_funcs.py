@@ -180,6 +180,9 @@ def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif",c
         
     if array.dtype == "int32":
         etype = gdal.GDT_Int32
+    elif array.dtype == "uint16":
+        print("uint16 set")
+        etype=gdal.GDT_UInt16
     else:
         etype = gdal.GDT_Float32
         

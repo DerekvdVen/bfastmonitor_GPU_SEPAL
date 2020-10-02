@@ -218,12 +218,16 @@ for data_list in run_dict:
     dates_array = np.array(dates_monitor) # dates_array is the dates that are in the monitoring period
     
     # julian_date output
-    julian_breaks = get_julian_dates(dates_array,breaks_indexed)
-    negative_julian_breaks = get_julian_dates(dates_array,breaks_indexed_neg)
+    julian_breaks, year_breaks = get_julian_dates(dates_array,breaks_indexed)
+    negative_julian_breaks, negative_year_breaks = get_julian_dates(dates_array,breaks_indexed_neg)
 
     # save negative means and breaks
     export_GTiff(tiles_data, output_dir = save_location, array = julian_breaks ,output_name = "breaks_julian_" + timeseries_directory[-2] + ".tif")
     export_GTiff(tiles_data, output_dir = save_location, array = negative_julian_breaks ,output_name = "breaks_julian_negative_" + timeseries_directory[-2] + ".tif")
+    
+    export_GTiff(tiles_data, output_dir = save_location, array = year_breaks, output_name = "breaks_year_" + data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = negative_year_breaks, output_name = "breaks_year_negative_" + data_list + ".tif")
+    
 
 end = time.time()
 print("this took so long: ", end - start)

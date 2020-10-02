@@ -1,29 +1,42 @@
 # module for functions used in the python bfastmonitor GPU
-import os
-import numpy as np
-import json
+import copy
+from datetime import datetime
 
 import folium
 from folium.plugins import FloatImage
-from osgeo import gdal
 from folium import plugins
+
+import json
 
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-from datetime import datetime
-import copy
-
-from time_series import Timeseries
-
+import numpy as np
+import os
+from osgeo import gdal
 from PIL import Image
 
+
+from time_series import Timeseries
 from functions import normalize
+
+
 
 def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
 
-    '''Saves an array and a related colorbar as seperate pngs'''
+    '''Saves an array and a related colorbar as seperate pngs
+    
+    input:
+    array (array)
+    output_dir (string)
+    save_name (string)
+    color_code = (cm.colorcode)
+    
+    output:
+    None
+    
+    '''
     
     array_norm = normalize(array)
     im = Image.fromarray(np.uint8(color_code(array_norm)*255))
@@ -58,7 +71,17 @@ def save_plot(array, output_dir, save_name,color_code = cm.Spectral):
     
 def merge_plots(data_list, base_output_dir = "output", plot_name = "all_means.png"):
 
-    '''Looks for plot name in all timeseries directories in the base_output_dir, so as to plot the entire AOI as a Folium map'''
+    '''Looks for plot name in all timeseries directories in the base_output_dir, so as to plot the entire AOI as a Folium map
+    
+    input:
+    data_list (list)
+    base_output_dir (string)
+    plot_name (string)
+    
+    output:
+    m (folium map)
+    
+    '''
     
     basemap = False
     for directory in os.listdir(base_output_dir):
@@ -108,6 +131,18 @@ def classify_output(start_monitor,end_monitor,breaks_plot,dates_array):
     '''
     Classifies the indexes of the breaks per year
     Returns a classified raster, the index of the first break of every year, and a list of years for plotting
+    
+    input:
+    start_monitor(datetime)
+    end_monitor(datetime)
+    breaks_plot(array)
+    dates_array(array)
+    
+    output:
+    breaks_plot_years (array)
+    idx_starts (dict)
+    ticklist (list)
+    
     '''
     
     idx_starts = {}
@@ -142,7 +177,17 @@ def classify_output(start_monitor,end_monitor,breaks_plot,dates_array):
 
 def plot_output_matplotlib(idx_starts,breaks_plot_years, ticklist):
 
-    '''Creates a matplotlib plot of the breaks per year'''
+    '''Creates a matplotlib plot of the breaks per year, takes output from classify_output()
+    
+    input:
+    idx_starts (dict)
+    breaks_plot_years (array)
+    ticklist (list)
+    
+    output:
+    None
+    
+    '''
     
     bins = len(idx_starts)
 
@@ -173,7 +218,20 @@ def plot_output_matplotlib(idx_starts,breaks_plot_years, ticklist):
     
 def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif",classify=False):
     
-    '''Exports rasters as geotiffs'''
+    '''Exports rasters as geotiffs
+    
+    input:
+    data_list (list)
+    output_dir (string)
+    array (array)
+    output_name (string)
+    classify (boolean)
+    
+    output:
+    None
+    
+    
+    '''
     
     total_ncols = array.shape[1]
     total_nrows = array.shape[0]
@@ -231,7 +289,16 @@ def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif",c
 
 def set_corners(output_dir, data_list):
 
-    '''Gets the latitude longitude corners around the tiles, and stores them in a json file for plotting the folium map'''
+    '''Gets the latitude longitude corners around the tiles, and stores them in a json file for plotting the folium map
+    
+    input:
+    output_dir (string)
+    data_list (list)
+    
+    output:
+    None
+    
+    '''
     
     # set corners
     min_lat = data_list[0].latitude
@@ -262,6 +329,19 @@ def set_corners(output_dir, data_list):
     print("saved in " + output_dir + "/" + "corners.json")
      
 def classify_magnitudes(means_orig):
+    
+    '''Classifies magnitudes into 10 classes based on their distance from the mean
+    
+    
+    input:
+    means_orig (array)
+    
+    output:
+    classified_means (array)
+    
+    '''
+    
+    
     meanv = np.nanmean(means_orig)
     stdev = np.nanstd(means_orig)
     maxv = np.nanmax(means_orig)
@@ -286,7 +366,17 @@ def classify_magnitudes(means_orig):
 
 def merge_plots2(data_list, base_output_dir = "output", plot_name = "magnitudes"):
 
-    '''Looks for plot name in all timeseries directories in the base_output_dir, so as to plot the entire AOI as a Folium map'''
+    '''Looks for plot name in all timeseries directories in the base_output_dir, so as to plot the entire AOI as a Folium map
+    
+    input:
+    data_list (list)
+    base_output_dir (output)
+    plot_name (string)
+    
+    output:
+    map (folium map)
+    
+    '''
     
     basemap = False
     for directory in os.listdir(base_output_dir):

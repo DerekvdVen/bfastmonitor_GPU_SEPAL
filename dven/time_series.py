@@ -311,6 +311,13 @@ class Timeseries:
     def check_arrays(self, min_perc_lacking_data = 20,print_output=False):
         '''
         Checks the means and breaks arrays for amount of breaks, and means values. 
+        
+        parameters:
+        -----------
+        min_perc_lacking_data (int)
+        print_output (boolean)
+        
+        
         '''
         minus1count = np.count_nonzero(self.breaks_array == -1) # no break found
         minus2count = np.count_nonzero(self.breaks_array == -2) # not enough data for output
@@ -336,7 +343,13 @@ class Timeseries:
     
     def log_all_output(self,output_dir_name = 'stored_time_series/output'):
         
-        '''Logs the Timeseries output of the respective tile'''
+        '''Logs the Timeseries output of the respective tile
+        
+        parameters:
+        -----------
+        output_dir_name (string)
+        
+        '''
         
         if not os.path.exists(output_dir_name):
             os.makedirs(output_dir_name)
@@ -370,6 +383,11 @@ class Timeseries:
     def load_breaks_means_arrays_from_file(self, output_dir_name = 'stored_time_series/output',print_output = False):
         '''
         Loads the locally saved means and breaks arrays from log_breaks_means_arrays() method
+        
+        parameters:
+        -----------
+        output_dir_name (string)
+        print_output (boolean)
         '''
         
         
@@ -389,7 +407,15 @@ class Timeseries:
     
 
     def _find_index_date(self, dates, t):
-        '''Returns the index of the first date larger than t'''
+        '''Returns the index of the first date larger than t
+        
+        parameters:
+        -----------
+        dates (list of datetime objects)
+        t (datetime)
+        
+        
+        '''
         for i in range(len(dates)):
             if t < dates[i]:
                 return i

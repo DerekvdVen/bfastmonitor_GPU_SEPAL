@@ -1,26 +1,33 @@
 # module for functions used in the python bfastmonitor GPU
-import os
-import numpy as np
-import json
+import base64
+import copy
 
 import folium
 from folium.plugins import FloatImage
-import base64
 
-from osgeo import gdal
+import json
+
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-import copy
+import numpy as np
+import os
+from osgeo import gdal
+from PIL import Image
 
 from time_series import Timeseries
 
-from PIL import Image
-
 def set_base_output_dir(chooser):
 
-    '''takes an ipywidget chooser as input, creates the base output directory, and returns it'''
+    '''takes an ipywidget chooser as input, creates the base output directory, and returns it
+    
+    input:
+    chooser(ipy widget)
+    
+    output:
+    save_location(string)
+    '''
     
     if not chooser.result:
         print("Defaulting to output directory name: stored_time_series/output")
@@ -40,7 +47,15 @@ def set_output_dir(chooser, timeseries_dir):
     '''
     Takes an ipywidget chooser and the timeseries directory as input.
     Creates output directories based on which timeseries directory you are in, and returns it
+    
+    input:
+    chooser(ipy widget)
+    timeseries_dir(string)
+    
+    output:
+    save_location(string)
     '''
+    
     if not chooser.result:
         save_location = "stored_time_series/output/" + timeseries_dir[-2]
     else:    
@@ -55,6 +70,12 @@ def set_paths(timeseries_directory):
     '''
     Takes the timeseries directory path and creates Timeseries wrapper classes for every tile in the dir. 
     Returns a list of the Timeseries classes tiles
+    
+    input:
+    timeseries_directory(string)
+    output:
+    data_list(list), holds Timeseries class tiles
+    
     '''
     
     dates_path = os.path.join(timeseries_directory, "dates.csv")
@@ -113,7 +134,17 @@ def _find_index_date(dates, t):
                 
 def merge_tiles(tile_list, output_dir_name = 'my_data'):
     
-    '''Merges the data_list of Timeseries classes tiles, saves and returns them'''
+    '''Merges the data_list of Timeseries classes tiles, saves and returns them
+    
+    input:
+    tile_list(list)
+    output_dir_name(string)
+    
+    output(all arrays):
+    big_means_array 
+    big_breaks_array
+    
+    '''
     
     x_locs = []
     y_locs = []
@@ -175,7 +206,10 @@ def merge_tiles(tile_list, output_dir_name = 'my_data'):
 
 def normalize(array): 
 
-    '''Normalizes an array'''
+    '''Normalizes an array
+    
+    input and output: array (array)
+    '''
     
     max_n = np.nanmax(array)
     min_n = np.nanmin(array)
@@ -184,15 +218,46 @@ def normalize(array):
 
 
 def get_julian_dates(dates_array, breaks_array):
+    
+    '''Calculates julian dates from index and dates arrays
+    
+    input(all arrays)
+    dates_array
+    breaks_array
+    
+    output:
+    breaks_array (array)
+    
+    '''
+    
+    years_array = copy.deepcopy(breaks_array)
     for i in range(len(dates_array)):
         date = dates_array[i]
         tt = date.timetuple()
         julian_date = tt.tm_year * 1000 + tt.tm_yday
+        year_date = tt.tm_year
         breaks_array[breaks_array == i] = julian_date
-    return(breaks_array)
+        years_array[years_array == i] = year_date
+        
+    return(breaks_array, years_array)
 
 
 def select_negatives(means,breaks):
+    
+    '''Takes means and breaks and returns specific arrays:
+    
+    input (all arrays):
+    means 
+    breaks 
+    
+    output (all arrays):
+    
+    means: magnitudes but only negatives
+    breaks: all index breaks
+    breaks_neg: all index breaks of negative magnitudes
+    binary_breaks: binary output of break presence
+    negative_binary_breaks: binary output of negative break presence'''
+    
     no_breaks_indices = (breaks == -1) # no -2 used by fabian
     no_break_lacking_data_indices = (breaks == -2) 
     means[no_breaks_indices] = np.nan

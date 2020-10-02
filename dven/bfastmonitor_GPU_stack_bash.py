@@ -38,8 +38,10 @@ from plotting_funcs import save_plot, merge_plots, classify_output, plot_output_
 from time_series import Timeseries
 print(Timeseries.__doc__)
 
+timedict = {}
 start = time.time()
-
+timedict["start"] = start
+relative_start = start
 
 import argparse
 parser = argparse.ArgumentParser(description='set dirs')
@@ -79,7 +81,9 @@ for directory in os.listdir(timeseries_directory):
     
     for tile in data_list:
         print(tile)
-        
+
+timedict["load_data_1"] = relative_start - time.time()
+relative_start = time.time()        
 
 # Set parameters
 
@@ -107,7 +111,8 @@ start_monitor = datetime.strptime(start_monitor, "%Y-%m-%d")
 end_monitor = datetime.strptime(end_monitor, "%Y-%m-%d") 
 start_hist = datetime.strptime(start_history, "%Y-%m-%d") 
 
-
+timedict["set_parameters"] = relative_start - time.time()
+relative_start = time.time()
 
 for data_list in run_dict:
     # loading bar
@@ -150,6 +155,9 @@ for data_list in run_dict:
 
     pbar1.close()
 
+timedict["run_bfast"] = relative_start - time.time()
+relative_start = time.time()
+    
 # load in all npy tiles
 run_dict = {}
 for directory in os.listdir(timeseries_directory):
@@ -172,7 +180,9 @@ for directory in os.listdir(timeseries_directory):
         
         tile.crop_dates(tile.dates)
         tile.load_breaks_means_arrays_from_file(output_dir_name =base_output_dir + "/" +  directory)
-    
+
+timedict["load_data_2"] = relative_start - time.time()
+relative_start = time.time()
     
 for data_list in run_dict:
     save_location = base_output_dir + "/" + data_list
@@ -218,9 +228,9 @@ for data_list in run_dict:
     save_plot(means_neg, output_dir = save_location, save_name = "all_negative_magnitudes")
 
     # save negative means and breaks
-    export_GTiff(tiles_data, output_dir = save_location, array = means_neg ,output_name = "magnitudes_negative_" + timeseries_directory[-2] + ".tif")
-    export_GTiff(tiles_data, output_dir = save_location, array = binary_breaks ,output_name = "breaks_binary_" + timeseries_directory[-2] + ".tif")
-    export_GTiff(tiles_data, output_dir = save_location, array = negative_binary_breaks ,output_name = "breaks_binary_negative_" + timeseries_directory[-2] + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = means_neg ,output_name = "magnitudes_negative_" + data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = binary_breaks ,output_name = "breaks_binary_" + data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = negative_binary_breaks ,output_name = "breaks_binary_negative_" + data_list + ".tif")
 
     dates_monitor = []
     dates = tiles_data[0].cropped_dates
@@ -232,13 +242,25 @@ for data_list in run_dict:
     dates_array = np.array(dates_monitor) # dates_array is the dates that are in the monitoring period
     
     # julian_date output
-    julian_breaks = get_julian_dates(dates_array,breaks_indexed)
-    negative_julian_breaks = get_julian_dates(dates_array,breaks_indexed_neg)
+    julian_breaks, year_breaks = get_julian_dates(dates_array,breaks_indexed)
+    negative_julian_breaks, negative_year_breaks = get_julian_dates(dates_array,breaks_indexed_neg)
 
     # save negative means and breaks
-    export_GTiff(tiles_data, output_dir = save_location, array = julian_breaks ,output_name = "breaks_julian_" + timeseries_directory[-2] + ".tif")
-    export_GTiff(tiles_data, output_dir = save_location, array = negative_julian_breaks ,output_name = "breaks_julian_negative_" + timeseries_directory[-2] + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = julian_breaks ,output_name = "breaks_julian_" + data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = negative_julian_breaks ,output_name = "breaks_julian_negative_" + data_list + ".tif")
+    
+    export_GTiff(tiles_data, output_dir = save_location, array = year_breaks, output_name = "breaks_year_" + data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = negative_year_breaks, output_name = "breaks_year_negative_" + data_list + ".tif")
+    
 
+timedict["save_data"] = relative_start - time.time()
+relative_start = time.time()
+    
 end = time.time()
 print("this took so long: ", end - start)
 
+if not os.path.exists("times"):
+    os.makedirs("times")
+
+with open("times/" + args.o + "timedict.json", 'wb') as f:
+        json.dump(timedict, f)

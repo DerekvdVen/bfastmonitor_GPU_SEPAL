@@ -82,7 +82,7 @@ for directory in os.listdir(timeseries_directory):
     for tile in data_list:
         print(tile)
 
-timedict["load_data_1"] = relative_start - time.time()
+timedict["load_data_1"] = time.time() - relative_start 
 relative_start = time.time()        
 
 # Set parameters
@@ -111,7 +111,7 @@ start_monitor = datetime.strptime(start_monitor, "%Y-%m-%d")
 end_monitor = datetime.strptime(end_monitor, "%Y-%m-%d") 
 start_hist = datetime.strptime(start_history, "%Y-%m-%d") 
 
-timedict["set_parameters"] = relative_start - time.time()
+timedict["set_parameters"] = time.time() - relative_start - 
 relative_start = time.time()
 
 for data_list in run_dict:
@@ -155,7 +155,7 @@ for data_list in run_dict:
 
     pbar1.close()
 
-timedict["run_bfast"] = relative_start - time.time()
+timedict["run_bfast"] = time.time() - relative_start
 relative_start = time.time()
     
 # load in all npy tiles
@@ -181,7 +181,7 @@ for directory in os.listdir(timeseries_directory):
         tile.crop_dates(tile.dates)
         tile.load_breaks_means_arrays_from_file(output_dir_name =base_output_dir + "/" +  directory)
 
-timedict["load_data_2"] = relative_start - time.time()
+timedict["load_data_2"] = time.time() - relative_start
 relative_start = time.time()
     
 for data_list in run_dict:
@@ -253,7 +253,7 @@ for data_list in run_dict:
     export_GTiff(tiles_data, output_dir = save_location, array = negative_year_breaks, output_name = "breaks_year_negative_" + data_list + ".tif")
     
 
-timedict["save_data"] = relative_start - time.time()
+timedict["save_data"] = time.time() - relative_start 
 relative_start = time.time()
     
 end = time.time()
@@ -262,5 +262,5 @@ print("this took so long: ", end - start)
 if not os.path.exists("times"):
     os.makedirs("times")
 
-with open("times/" + args.o + "timedict.json", 'wb') as f:
+with open("times/" + args.o + "timedict.json", 'w') as f:
         json.dump(timedict, f)

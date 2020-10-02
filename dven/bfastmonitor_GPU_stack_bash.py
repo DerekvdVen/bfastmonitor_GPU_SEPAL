@@ -111,7 +111,7 @@ start_monitor = datetime.strptime(start_monitor, "%Y-%m-%d")
 end_monitor = datetime.strptime(end_monitor, "%Y-%m-%d") 
 start_hist = datetime.strptime(start_history, "%Y-%m-%d") 
 
-timedict["set_parameters"] = time.time() - relative_start - 
+timedict["set_parameters"] = time.time() - relative_start 
 relative_start = time.time()
 
 for data_list in run_dict:

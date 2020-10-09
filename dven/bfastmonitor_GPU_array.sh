@@ -1,14 +1,15 @@
 
-output_array=(CS1 CS2 CS3 CS4)                              # minimum confidence for predicting 
+output_array=(test2)                              # minimum confidence for predicting 
 #timeseries_array=(0.2 0.2 0.2)                             # non maximal supression iou
-blocksize_array=(128 512 1024 2048)
+blocksize_array=(512)
 
 # Essential parameters
-o="MyCountry2"
-t="/home/dven/downloads/Time_series_2020-09-17_14-47-37_CostaRica/"
-start_monitor="2018-01-01"
+#o="MyCountry2"
+#t="/home/dven/downloads/Time_series_2020-09-17_14-47-37_CostaRica/"
+t="/home/dven/downloads/Time_series_2020-09-09_13-02-40_Australia_small/"
+start_monitor="2017-01-01"
 end_monitor="2020-01-01"
-start_history="2016-01-01"
+start_history="2015-01-01"
 
 # Parameters to 
 k="3"
@@ -19,7 +20,7 @@ level="0.05"
 backend="opencl"
 #blocksize="512"
 
-for x in 0 1 2 3
+for x in 0
 do
 o="${output_array[$x]}"
 #t="${timeseries_array[$x]}"

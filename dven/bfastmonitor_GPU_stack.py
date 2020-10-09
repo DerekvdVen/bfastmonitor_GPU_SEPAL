@@ -58,14 +58,17 @@ run_dict = {}
 for directory in os.listdir(timeseries_directory):
     
     segment_location = timeseries_directory + directory + "/"
+    save_location = base_output_dir +"/"+ directory + "/"
     
-    data_list = set_paths(timeseries_directory = segment_location)
+    data_list = set_paths(timeseries_directory = segment_location, save_location = save_location, check_existing = True) ## ! Set check_existing = false to overwrite ## 
     
     run_dict[directory] = data_list
-    
+    print(data_list)
+if data_list:
     for tile in data_list:
         print(tile)
-        
+else:
+    raise Exception("All tiles have already generated output, if you want to run again, change your output_dir_name or set check_existing above to False")    
 
 # Set parameters
 

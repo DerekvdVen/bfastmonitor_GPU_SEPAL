@@ -65,14 +65,18 @@ def set_output_dir(chooser, timeseries_dir):
             os.makedirs(save_location)
     return(save_location)
 
-def set_paths(timeseries_directory):
+def set_paths(timeseries_directory,save_location=None,check_existing=False):
 
     '''
     Takes the timeseries directory path and creates Timeseries wrapper classes for every tile in the dir. 
+    Set check_existing to True if your run crashed
     Returns a list of the Timeseries classes tiles
+    
+    
     
     input:
     timeseries_directory(string)
+    check_existing(bool)
     output:
     data_list(list), holds Timeseries class tiles
     
@@ -88,16 +92,31 @@ def set_paths(timeseries_directory):
     for file in file_list:
         if file.startswith('tile'):
             time_series_path =  timeseries_directory + file + "/"
-            tile_paths.append(time_series_path)
+            
+            if check_existing == False:
+                tile_paths.append(time_series_path)
+            else:
+                output_path = file + "_meta_data.txt"
+                
+                if os.path.exists(save_location):
+                    if output_path in os.listdir(save_location):
+                        print("output for "+ file + " already found, skipping")
+                        skipped_files=True
+                    else:
+                        tile_paths.append(time_series_path)
+                else:
+                    tile_paths.append(time_series_path)
 
     # Create Timeseries wrapper for every tile
-    if not tile_paths:
+    if not tile_paths and skipped_files == False:
         print("No tiles, setting up data as one tile")
         ts_data = Timeseries(timeseries_directory, dates_path)
         data_list.append(ts_data)
     else:
         print("Data consists of tiles, setting up tiles in 'data_list' ")
         for time_series_path in tile_paths:
+            
+            #print("time_series_path" + time_series_path)
             ts_data = Timeseries(time_series_path, dates_path)
             data_list.append(ts_data)
     return data_list

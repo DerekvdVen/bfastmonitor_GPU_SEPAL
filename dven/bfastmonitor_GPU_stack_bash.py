@@ -80,17 +80,28 @@ for directory in os.listdir(timeseries_directory):
     
     run_dict[directory] = data_list
     
-if data_list:
-    for tile in data_list:
-        print(tile)
-else:
-    raise Exception("All tiles have already generated output, if you want to run again, change your output_dir_name or set check_existing above to False")
+# check for dirs that will be analyzed
+del_list = []
+for directory in run_dict:
+    
+    if run_dict[directory]:
+        for tile in directory:
+            print(tile)
+    else:
+        print("Warning, All tiles for directory " + directory +  " have already generated output, if you want to run again, change your output_dir_name or set check_existing above to False")
+        del_list.append(directory)
+
+# remove dirs that have already run
+for item in del_list:
+    del run_dict[item]
+
+        
 
 timedict["load_data_1"] = time.time() - relative_start 
 relative_start = time.time()        
 
 # Set parameters
-
+data_list = run_dict[next(iter(run_dict))]
 dates = data_list[0].dates
 start_date = dates[0].date()
 end_date = dates[-1].date()

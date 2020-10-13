@@ -51,7 +51,7 @@ parser.add_argument('-t', default= None, type = str, help='where your timeseries
 parser.add_argument('-k', default= 3, type=int, help='harmonic term')
 parser.add_argument('-f', default= 365, type = int, help='frequency of seasonal model in days')
 
-parser.add_argument('-tr', default= False, type=bool, help='add trend')
+parser.add_argument('-tr', default= "False", type=str, help='add trend')
 parser.add_argument('-hfrac', default= 0.25, type = float, help='bandwidth relative to sample size')
 
 parser.add_argument('-l', default= 0.05, type=float, help='level of significance 0.001 - 0.05')
@@ -113,7 +113,15 @@ start_history = str(args.start_h or start_date) #"2012-01-1"
 #print("\n ### \n\n Give parameter input, press enter to resort to standard parameter. \n")
 k = int(args.k or 3)
 freq = int(args.f or 365)
-trend = bool(args.tr or False)
+
+trend = str(args.tr)
+print(trend.lower())
+if trend.lower() in ["true","t"]:
+    trend = True
+else:
+    trend = False
+
+print("TREND", trend)
 hfrac =float(args.hfrac or 0.25)
 level = float(args.l or 1-0.95)
 backend = str(args.b or 'opencl')

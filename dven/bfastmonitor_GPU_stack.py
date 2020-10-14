@@ -98,6 +98,7 @@ start_history = str(input("start history period yyyy-mm-dd, press enter to use a
 k = int(input("set k, harmonic term, choose 1,2,3,4,5 (default = 3):  ") or 3)
 freq = int(input("set frequency of seasonal model in days (default = 365): ") or 365)
 trend = bool(input("set trend True or False (default = False): ") or False)
+print("trend", trend)
 hfrac =float(input(" set bandwidth relative to sample size (default = 0.25): ") or 0.25)
 level = float(input("set level of significance 0.001 - 0.05 (default = 0.05): ") or 1-0.95)
 backend = str(input("choose opencl or python (default = opencl): ") or 'opencl')

@@ -19,7 +19,7 @@ def get_widgets():
     
     k_chooser = widgets.interactive(g, 
         i=widgets.Dropdown(
-            options=[1,2,3,4,5,6],
+            options=[3,4,5,6,7,8,9,10],
             value=3,
             description='k, harmonic terms',
             style = style, layout= layout,))

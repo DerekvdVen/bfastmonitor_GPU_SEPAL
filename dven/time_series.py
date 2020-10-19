@@ -143,7 +143,6 @@ class Timeseries:
             self.y_block_size = y_block_size
 
         print("rastersize: ",self.ncols,self.nrows)
-        print("The natural block size is the block size that is most efficient for accessing the format, gdal found blocksize: ",self.gdal_recommended_block_size)
         print("set blocksize explicitly: ",x_block_size,", " ,y_block_size)
         print("start monitor: ", self.start_monitor)
         print("end monitor: ", self.end_monitor)

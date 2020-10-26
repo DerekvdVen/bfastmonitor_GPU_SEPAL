@@ -228,18 +228,19 @@ for data_list in run_dict:
         breaks_orig = tiles_data[0].breaks_array
     
     save_plot(means_orig, save_location, save_name = "all_magnitudes")
-    export_GTiff(tiles_data, output_dir = save_location, array = means_orig, output_name = "magnitudes_" + data_list + ".tif")
-    export_GTiff(tiles_data, output_dir = save_location, array = breaks_orig, output_name = "breaks_indexed_" +  data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = means_orig, output_name = "magnitudes_" + data_list)
+    export_GTiff(tiles_data, output_dir = save_location, array = breaks_orig, output_name = "breaks_indexed_" +  data_list)
     
     
     classified_means = classify_magnitudes(means_orig)
     classified_means = np.nan_to_num(classified_means,nan=0).astype("uint16")
-    export_GTiff(tiles_data, output_dir = save_location, array = classified_means, output_name = "magnitudes_classified_" +  data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = classified_means, output_name = "magnitudes_classified_" +  data_list)
     
     # add colors to classified raster
     func = "oft-addpct.py"
-    clas_tif = save_location + "/geotifs/magnitudes_classified_" + data_list + ".tif"
-    clas_tif_result = save_location + "/geotifs/magnitudes_classified_" + data_list + "_result.tif"
+    output_key = save_location.replace("/","-").split("-")[1]
+    clas_tif = save_location + "/geotifs/magnitudes_classified_" + data_list + "_" + output_key + ".tif"
+    clas_tif_result = save_location + "/geotifs/magnitudes_classified_" + data_list + "_" + output_key + "_result.tif"
     color_table = "color_table.txt"
     
     ps = subprocess.Popen(('echo', color_table), stdout=subprocess.PIPE)
@@ -251,9 +252,9 @@ for data_list in run_dict:
     save_plot(means_neg, output_dir = save_location, save_name = "all_negative_magnitudes")
 
     # save negative means and breaks
-    export_GTiff(tiles_data, output_dir = save_location, array = means_neg ,output_name = "magnitudes_negative_" + data_list + ".tif")
-    export_GTiff(tiles_data, output_dir = save_location, array = binary_breaks ,output_name = "breaks_binary_" + data_list + ".tif")
-    export_GTiff(tiles_data, output_dir = save_location, array = negative_binary_breaks ,output_name = "breaks_binary_negative_" + data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = means_neg ,output_name = "magnitudes_negative_" + data_list)
+    export_GTiff(tiles_data, output_dir = save_location, array = binary_breaks ,output_name = "breaks_binary_" + data_list)
+    export_GTiff(tiles_data, output_dir = save_location, array = negative_binary_breaks ,output_name = "breaks_binary_negative_" + data_list)
 
     dates_monitor = []
     dates = tiles_data[0].cropped_dates
@@ -269,11 +270,11 @@ for data_list in run_dict:
     negative_julian_breaks, negative_year_breaks = get_julian_dates(dates_array,breaks_indexed_neg)
 
     # save negative means and breaks
-    export_GTiff(tiles_data, output_dir = save_location, array = julian_breaks ,output_name = "breaks_julian_" + data_list + ".tif")
-    export_GTiff(tiles_data, output_dir = save_location, array = negative_julian_breaks ,output_name = "breaks_julian_negative_" + data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = julian_breaks ,output_name = "breaks_julian_" + data_list)
+    export_GTiff(tiles_data, output_dir = save_location, array = negative_julian_breaks ,output_name = "breaks_julian_negative_" + data_list)
     
-    export_GTiff(tiles_data, output_dir = save_location, array = year_breaks, output_name = "breaks_year_" + data_list + ".tif")
-    export_GTiff(tiles_data, output_dir = save_location, array = negative_year_breaks, output_name = "breaks_year_negative_" + data_list + ".tif")
+    export_GTiff(tiles_data, output_dir = save_location, array = year_breaks, output_name = "breaks_year_" + data_list)
+    export_GTiff(tiles_data, output_dir = save_location, array = negative_year_breaks, output_name = "breaks_year_negative_" + data_list)
     
 
 timedict["save_data"] = time.time() - relative_start 

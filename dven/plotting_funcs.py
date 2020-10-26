@@ -251,7 +251,9 @@ def export_GTiff(data_list, output_dir, array, output_name = "test_raster.tif",c
     if not os.path.exists(save_location):
         os.makedirs(save_location)
     
-    dst_ds = gdal.GetDriverByName('GTiff').Create(save_location + "/" + output_name, 
+    
+    output_key = output_dir.replace("/","-").split("-")[1]
+    dst_ds = gdal.GetDriverByName('GTiff').Create(save_location + "/"  + output_name + "_" + output_key + ".tif", 
                                                   xsize = total_ncols, 
                                                   ysize = total_nrows, 
                                                   bands = 1,
@@ -389,7 +391,8 @@ def merge_plots2(data_list, base_output_dir = "output", plot_name = "magnitudes"
                 #Open raster file
                 driver=gdal.GetDriverByName('GTiff')
                 driver.Register() 
-                ds = gdal.Open(base_output_dir + "/" + directory + "/geotifs/" + plot_name+ "_" + directory  + '.tif')
+                output_key = base_output_dir.replace("/","-").split("-")[1]
+                ds = gdal.Open(base_output_dir + "/" + directory + "/geotifs/" + plot_name + "_" + directory + "_" + output_key  + '.tif')
                 if ds is None:
                     print('Could not open')
                 

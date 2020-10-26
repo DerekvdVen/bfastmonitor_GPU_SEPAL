@@ -29,7 +29,7 @@ import json
 class Timeseries:
     '''
     The timeseries class is a wrapper for using SEPAL timeseries data with bfast. 
-    It wraps together a data tile with associated dates file and metadata. 
+    It wraps together a data tile with an associated dates file and metadata. 
     It also allows for saving and loading the output rasters in a specified directory. 
     '''
     

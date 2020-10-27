@@ -35,6 +35,8 @@ def set_base_output_dir(chooser):
         if not os.path.exists(save_location):
             os.makedirs(save_location)
         return(save_location)
+    elif "-" in chooser.result or "/" in chooser.result:
+        raise Exception("Please do not use '-' or '/' in your directory name")
     else:
         print("Output directory name:", "stored_time_series/" + chooser.result)
         save_location = "stored_time_series/" + chooser.result

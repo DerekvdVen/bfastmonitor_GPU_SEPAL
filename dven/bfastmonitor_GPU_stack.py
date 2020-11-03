@@ -53,38 +53,17 @@ timeseries_directory = args.t
 if not timeseries_directory:
     raise Exception("Make sure to select your timeseries_directory with -t ../../downloads/[time_series], or -t home/yourusername/downloads/[time_series]")
 
-# set path to dates file
-run_dict = {}
-for directory in os.listdir(timeseries_directory):
-    
-    segment_location = timeseries_directory + directory + "/"
-    save_location = base_output_dir +"/"+ directory + "/"
-    
-    data_list = set_paths(timeseries_directory = segment_location, save_location = save_location, check_existing = True) ## ! Set check_existing = false to overwrite ## 
-    
-    run_dict[directory] = data_list
-
-    # check for dirs that will be analyzed
-del_list = []
-for directory in run_dict:
-    
-    if run_dict[directory]:
-        for tile in directory:
-            print(tile)
-    else:
-        print("Warning, All tiles for directory " + directory +  " have already generated output, if you want to run again, change your output_dir_name or set check_existing above to False")
-        del_list.append(directory)
-
-# remove dirs that have already run
-for item in del_list:
-    del run_dict[item]
-
             
 
 
 # Set parameters
-data_list = run_dict[next(iter(run_dict))]
-dates = data_list[0].dates
+dates_path = os.path.join(timeseries_directory, "0/dates.csv")
+
+# Store dates_file
+with open(dates_path) as f:
+    dates_list = f.read().split('\n')
+    dates = [datetime.strptime(d, '%Y-%m-%d') for d in dates_list if len(d) > 0]
+
 start_date = dates[0].date()
 end_date = dates[-1].date()
 
@@ -111,6 +90,32 @@ start_monitor = datetime.strptime(start_monitor, "%Y-%m-%d")
 end_monitor = datetime.strptime(end_monitor, "%Y-%m-%d") 
 start_hist = datetime.strptime(start_history, "%Y-%m-%d") 
 
+
+# set path to dates file
+run_dict = {}
+for directory in os.listdir(timeseries_directory):
+    
+    segment_location = timeseries_directory + directory + "/"
+    save_location = base_output_dir +"/"+ directory + "/"
+    
+    data_list = set_paths(timeseries_directory = segment_location, sh = start_hist, sm = start_monitor, em = end_monitor, save_location = save_location, check_existing = True) ## ! Set check_existing = false to overwrite ## 
+    
+    run_dict[directory] = data_list
+
+    # check for dirs that will be analyzed
+del_list = []
+for directory in run_dict:
+    
+    if run_dict[directory]:
+        for tile in directory:
+            print(tile)
+    else:
+        print("Warning, All tiles for directory " + directory +  " have already generated output, if you want to run again, change your output_dir_name or set check_existing above to False")
+        del_list.append(directory)
+
+# remove dirs that have already run
+for item in del_list:
+    del run_dict[item]
 
 
 for data_list in run_dict:
@@ -161,7 +166,7 @@ for directory in os.listdir(timeseries_directory):
     segment_location = timeseries_directory + directory + "/"
     dates_location =  timeseries_directory + directory + "/dates.csv"
     
-    data_list = set_paths(timeseries_directory = segment_location)
+    data_list = set_paths(timeseries_directory = segment_location,sh = start_hist, sm = start_monitor,em = end_monitor)
     
     run_dict[directory] = data_list
     

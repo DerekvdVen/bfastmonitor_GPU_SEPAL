@@ -361,7 +361,10 @@ class Timeseries:
             tile_name = 'single_tile'
         
         # metadata
-        save_name = output_dir_name + "/" + tile_name  + "_meta_data.txt"
+        sh = self.start_hist
+        sm = self.start_monitor
+        em = self.end_monitor
+        save_name = output_dir_name + "/" + tile_name + "_" + str(sh.date()) + "_" + str(sm.date()) + "_" + str(em.date()) + "_meta_data.txt"
         
         attributes = inspect.getmembers(self, lambda a:not(inspect.isroutine(a)))
         with open(save_name, "w") as f:

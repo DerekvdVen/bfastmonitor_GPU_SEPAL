@@ -67,7 +67,7 @@ def set_output_dir(chooser, timeseries_dir):
             os.makedirs(save_location)
     return(save_location)
 
-def set_paths(timeseries_directory,save_location=None,check_existing=False):
+def set_paths(timeseries_directory,sh, sm, em,save_location=None, check_existing=False):
 
     '''
     Takes the timeseries directory path and creates Timeseries wrapper classes for every tile in the dir. 
@@ -98,7 +98,7 @@ def set_paths(timeseries_directory,save_location=None,check_existing=False):
             if check_existing == False:
                 tile_paths.append(time_series_path)
             else:
-                output_path = file + "_meta_data.txt"
+                output_path = file + str(sh.date()) + "_" + str(sm.date()) + "_" + str(em.date()) + "_meta_data.txt"
                 
                 if os.path.exists(save_location):
                     if output_path in os.listdir(save_location):

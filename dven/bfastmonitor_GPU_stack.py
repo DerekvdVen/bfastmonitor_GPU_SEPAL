@@ -80,9 +80,12 @@ trend = bool(input("set trend True or False (default = False): ") or False)
 print("trend", trend)
 hfrac =float(input(" set bandwidth relative to sample size (default = 0.25): ") or 0.25)
 level = float(input("set level of significance 0.001 - 0.05 (default = 0.05): ") or 1-0.95)
+level = round(level,3)
 backend = str(input("choose opencl or python (default = opencl): ") or 'opencl')
 verbose = 1
 device_id = 0
+
+parameter_string =  'k%sf%st%sh%sl%s' % (k,freq,trend,hfrac,level)
 
 x_block = y_block = int(input("choose block size 128, 256, 512, 1024 (default = 512): ") or 512)
 
@@ -98,7 +101,7 @@ for directory in os.listdir(timeseries_directory):
     segment_location = timeseries_directory + directory + "/"
     save_location = base_output_dir +"/"+ directory + "/"
     
-    data_list = set_paths(timeseries_directory = segment_location, sh = start_hist, sm = start_monitor, em = end_monitor, save_location = save_location, check_existing = True) ## ! Set check_existing = false to overwrite ## 
+    data_list = set_paths(timeseries_directory = segment_location, sh = start_hist, sm = start_monitor, em = end_monitor, parameter_string = parameter_string, save_location = save_location, check_existing = True) ## ! Set check_existing = false to overwrite ## 
     
     run_dict[directory] = data_list
 
@@ -149,7 +152,7 @@ for data_list in run_dict:
             tile.loop_blocks(x_block_size = x_block,
                                 y_block_size = y_block)
 
-            tile.log_all_output(output_dir_name=save_location)
+            tile.log_all_output(output_dir_name=save_location,parameter_string = parameter_string)
             
             # delete tile from memory and replace with a placeholder zero to keep the list at same length 
             run_dict[data_list][counter] = '0'
@@ -166,7 +169,7 @@ for directory in os.listdir(timeseries_directory):
     segment_location = timeseries_directory + directory + "/"
     dates_location =  timeseries_directory + directory + "/dates.csv"
     
-    data_list = set_paths(timeseries_directory = segment_location,sh = start_hist, sm = start_monitor,em = end_monitor)
+    data_list = set_paths(timeseries_directory = segment_location,sh = start_hist, sm = start_monitor,em = end_monitor,parameter_string = parameter_string)
     
     run_dict[directory] = data_list
     

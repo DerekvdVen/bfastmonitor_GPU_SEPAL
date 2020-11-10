@@ -340,7 +340,7 @@ class Timeseries:
         return(minus2count,minus1count,perc_lacking_data,perc_breaks)
     
     
-    def log_all_output(self,output_dir_name = 'stored_time_series/output'):
+    def log_all_output(self,parameter_string, output_dir_name = 'stored_time_series/output'):
         
         '''Logs the Timeseries output of the respective tile
         
@@ -364,7 +364,7 @@ class Timeseries:
         sh = self.start_hist
         sm = self.start_monitor
         em = self.end_monitor
-        save_name = output_dir_name + "/" + tile_name + "_" + str(sh.date()) + "_" + str(sm.date()) + "_" + str(em.date()) + "_meta_data.txt"
+        save_name = output_dir_name + "/" + tile_name + "_" + str(sh.date()) + "_" + str(sm.date()) + "_" + str(em.date()) + "_" + parameter_string + "_meta_data.txt"
         
         attributes = inspect.getmembers(self, lambda a:not(inspect.isroutine(a)))
         with open(save_name, "w") as f:

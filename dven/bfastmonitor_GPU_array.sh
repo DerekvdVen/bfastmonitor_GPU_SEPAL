@@ -1,5 +1,5 @@
 
-output_array=(test2)                              # minimum confidence for predicting 
+output_array=(today)                              # minimum confidence for predicting 
 #timeseries_array=(0.2 0.2 0.2)                             # non maximal supression iou
 blocksize_array=(512)
 
